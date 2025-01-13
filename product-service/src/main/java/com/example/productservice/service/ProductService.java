@@ -1,6 +1,8 @@
 package com.example.productservice.service;
 
 import com.example.productservice.model.Product;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,8 @@ public class ProductService {
         logger.info("Saved product: {}", product.getName());
         productRepository.save(product);
     }
-
+    @CircuitBreaker(name="product service", fallbackMethod = "fallbackMethod")
+    @Bulkhead(name="product service",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
     public Product findProductByName(String productName){
         Iterable<Product> products=productRepository.findAll();
         for(Product p :products ){
@@ -38,8 +41,7 @@ public class ProductService {
                 return p;
             }
         }
-
-       return  new Product();
+        throw new RuntimeException("Product not found");
     }
 
     public void deleteProduct(String productName){
@@ -78,4 +80,13 @@ public class ProductService {
 
         return  null;
     }
+
+    public Product fallbackMethod(String productName, Throwable throwable) {
+        System.err.println("Fallback triggered for product: " + productName);
+        System.err.println("Reason: " + throwable.getMessage());
+
+        // You can return a default or null product
+        return new Product();
+    }
+
 }

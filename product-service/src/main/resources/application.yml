@@ -18,10 +18,17 @@ spring:
     show-sql: true      # Show SQL queries in the console
     database-platform: org.hibernate.dialect.H2Dialect
 management:
+  health:
+    circuitbreakers:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: mappings,health
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
 
 eureka:
   instance:
@@ -33,39 +40,21 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     enabled: true
 
-#resilience4j:
-#  circuitbreaker:
-#    instances:
-#      myCircuitBreaker:
-#        slidingWindowSize: 100
-#        slidingWindowType: COUNT_BASED
-#        failureRateThreshold: 50
-#        waitDurationInOpenState: 10s
-#        registerHealthIndicator: true
-#  retry:
-#    instances:
-#      myRetry:
-#        maxAttempts: 3
-#        waitDuration: 1s
-#  ratelimiter:
-#    instances:
-#      myRateLimiter:
-#        limitForPeriod: 10
-#        timeoutDuration: 5s
-#        limitRefreshPeriod: 1s
-#  bulkhead:
-#    instances:
-#      myBulkhead:
-#        maxConcurrentCalls: 25
-#        maxWaitDuration: 1s
-#  thread-pool-bulkhead:
-#    instances:
-#      myThreadPoolBulkhead:
-#        coreThreadPoolSize: 10
-#        maxThreadPoolSize: 20
-#        queueCapacity: 50
-#  timelimiter:
-#    instances:
-#      myTimeLimiter:
-#        timeoutDuration: 2s
-#        cancelRunningFuture: true
+resilience4j.circuitbreaker:
+  instances:
+    product-service:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000ms
+      permittedNumberOfCallsInHalfOpenState: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      slowCallRateThreshold: 100
+      slowCallDurationThreshold: 2s
+  thread-pool-bulkhead:
+    instances:
+      productServiceThreadPool:
+        maxThreadPoolSize: 10        # Maximum size of the thread pool
+        coreThreadPoolSize: 5        # Core size of the thread pool
+        queueCapacity: 10            # Queue capacity for excess calls
+
