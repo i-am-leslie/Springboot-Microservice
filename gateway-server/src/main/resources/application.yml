@@ -7,6 +7,12 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
+      globalFilters:
+        - name: CircuitBreaker
+          args:
+            name: gateway-server
+            fallbackUri: forward:/fallback
+
 
 
 eureka:
@@ -18,3 +24,12 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     enabled: true
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      gateway-server:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000 # milliseconds
