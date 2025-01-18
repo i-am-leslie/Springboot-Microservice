@@ -17,7 +17,7 @@ spring:
       ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
     show-sql: true      # Show SQL queries in the console
     database-platform: org.hibernate.dialect.H2Dialect
-management:
+
   health:
     circuitbreakers:
       enabled: true
@@ -28,7 +28,6 @@ management:
   endpoint:
     health:
       show-details: always
-
 
 eureka:
   instance:
