@@ -17,7 +17,6 @@ spring:
       ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
     show-sql: true      # Show SQL queries in the console
     database-platform: org.hibernate.dialect.H2Dialect
-
   health:
     circuitbreakers:
       enabled: true
@@ -28,6 +27,28 @@ spring:
   endpoint:
     health:
       show-details: always
+  #zipkin
+  management:
+    tracing:
+      enabled: true
+    zipkin:
+      tracing:
+        enabled: true
+        endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+#  cloud:
+#    stream:
+#      bindings:
+#        output:
+#          destination: Supplier
+#          content-type: application/json
+#          binder: kafka
+#      kafka:
+#        binder:
+#          brokers: localhost:9092
+#          zkNodes: localhost:2181
 
 eureka:
   instance:

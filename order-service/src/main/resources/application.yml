@@ -22,7 +22,30 @@ management:
     web:
       exposure:
         include: mappings,health
+  #  Zipkin
+  management:
+    tracing:
+      enabled: true
+    zipkin:
+      tracing:
+        enabled: true
+        endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+#  cloud:
+#    stream:
+#      bindings:
+#        output:
+#          destination: Supplier
+#          content-type: application/json
+#          binder: kafka
+#      kafka:
+#        binder:
+#          brokers: localhost:9092
+#          zkNodes: localhost:2181
 
+# Eureka
 eureka:
   instance:
     preferIpAddress: true
@@ -32,3 +55,4 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     enabled: true
+

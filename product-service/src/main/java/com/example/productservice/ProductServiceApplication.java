@@ -20,8 +20,8 @@ public class ProductServiceApplication {
 		SpringApplication.run(ProductServiceApplication.class, args);
 	}
 
-	@Bean
-	public Supplier<String> stringSupplier() {
-		return () -> "Hello from Publisher (Supplier)";  // Data produced by the Publisher
-	}
+//	@Bean
+//	public Supplier<String> stringSupplier() {
+//		return () -> "Hello from Publisher (Supplier)";  // Data produced by the Publisher
+//	}
 }

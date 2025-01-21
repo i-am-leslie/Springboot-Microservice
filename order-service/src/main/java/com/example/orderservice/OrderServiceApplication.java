@@ -17,8 +17,8 @@ public class OrderServiceApplication {
 		SpringApplication.run(OrderServiceApplication.class, args);
 	}
 
-	@Bean
-	public Consumer<String> stringConsumer() {
-		return message -> System.out.println("Consumed message: " + message);  // Data consumed by the Subscriber
-	}
+//	@Bean
+//	public Consumer<String> stringConsumer() {
+//		return message -> System.out.println("Consumed message: " + message);  // Data consumed by the Subscriber
+//	}
 }
