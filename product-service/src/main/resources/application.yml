@@ -28,16 +28,20 @@ spring:
     health:
       show-details: always
   #zipkin
-  management:
-    tracing:
-      enabled: true
-    zipkin:
-      tracing:
-        enabled: true
-        endpoint: http://localhost:9411/api/v2/spans
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings,health
   tracing:
+    enabled: true
     sampling:
       probability: 1.0
+  zipkin:
+    tracing:
+      enabled: true
+      endpoint: http://localhost:9411/api/v2/spans
+
 #  cloud:
 #    stream:
 #      bindings:
