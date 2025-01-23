@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  eureka-server:
+    image: iamleslie/eureka-server:latest
+    container_name: eureka-server
+    depends_on:
+      - zipkin
+    ports:
+      - "8761:8761"
+
+  gateway-server:
+    image: iamleslie/gateway-server:latest
+    container_name: gateway-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+
+  product-service:
+    image: iamleslie/product-service:latest
+    container_name: product-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+
+  order-service:
+    image: iamleslie/order-service:latest
+    container_name: order-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+      - product-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - 9411:9411

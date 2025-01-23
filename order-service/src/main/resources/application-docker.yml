@@ -56,4 +56,4 @@ eureka:
     enabled: true
 
 product-service:
-  url=http://product:8081:
+  url: http://product:8081
