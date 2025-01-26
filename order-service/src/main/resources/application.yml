@@ -58,3 +58,38 @@ eureka:
 
 product-service:
   url=http://localhost:8081:
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 5
+        permitted-number-of-calls-in-half-open-state:  3
+        wait-duration-in-open-state:
+          seconds: 5s
+        failure-rate-threshold: 20
+    instances:
+      order-service:
+        baseConfig: default
+  retry:
+    instances:
+      retryOrderService:
+        max-attempts: 5
+        wait-duration: 1000
+        retry-exceptions:
+          - java.util.concurrent.TimeoutException
+  ratelimiter:
+    configs:
+      default:
+        timeoutDuration: 1000ms
+        limitRefreshPeriod: 5000ms
+        limitForPeriod: 5
+    instances:
+      order-service:
+        baseConfig: default
+
+
+
+
+
