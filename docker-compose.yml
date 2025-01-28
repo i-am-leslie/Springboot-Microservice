@@ -46,3 +46,35 @@ services:
     container_name: zipkin
     ports:
       - 9411:9411
+
+#  elasticsearch:
+#    image: elasticsearch:8.17.1
+#    container_name: elasticsearch
+##    volumes:
+##      - esdata1:/usr/share/elasticsearch/data
+#    environment:
+#      - ELASTIC_PASSWORD=password
+#    ports:
+#      - 9300:9300
+#      - 9200:9200
+#  kibana:
+#    image: kibana:8.17.1
+#    container_name: kibana
+#    environment:
+#      ELASTICSEARCH_URL: "http://elasticsearch:9300"
+#      ELASTIC_PASSWORD: "password"
+#    ports:
+#      - 5601:5601
+#
+#  logstash:
+#    image: logstash:8.17.1
+#    container_name: logstash
+#    command: logstash -f /etc/logstash/conf.d/logstash.conf
+#    volumes:
+#      - ./logstash.conf:/etc/logstash/conf.d/logstash.conf
+#
+#    ports:
+#      - "5001:5001"   # Map port 5001 for TCP input (matching your logstash.conf)
+#      - "9600:9600"
+
+

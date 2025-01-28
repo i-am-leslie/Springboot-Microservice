@@ -96,7 +96,7 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-<!--		Zipkin and micrometer for distributed tracing -->
+		<!--		Zipkin and micrometer for distributed tracing -->
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-tracing-bridge-brave</artifactId>
@@ -109,6 +109,13 @@
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-micrometer</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>8.0</version>
+		</dependency>
+
+		<!--		End of the observability plugins-->
 
 	</dependencies>
 
