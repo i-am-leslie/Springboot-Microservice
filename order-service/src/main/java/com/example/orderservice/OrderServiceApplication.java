@@ -9,6 +9,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SpringBootApplication
 @EnableFeignClients
@@ -19,8 +20,13 @@ public class OrderServiceApplication {
 		SpringApplication.run(OrderServiceApplication.class, args);
 	}
 
-//	@Bean
-//	public Consumer<String> stringConsumer() {
-//		return message -> System.out.println("Consumed message: " + message);  // Data consumed by the Subscriber
-//	}
+	@Bean
+	public Function<String, String> uppercase() {
+		return value -> value.toUpperCase();  // Transform the data to uppercase
+	}
+
+	@Bean
+	public Consumer<String> stringConsumer() {
+		return message -> System.out.println("Consumed message: " + message);  // Data consumed by the Subscriber
+	}
 }

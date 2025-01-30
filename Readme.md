@@ -49,10 +49,11 @@ Future Consideration: Kubernetes may be explored for enhanced orchestration.
 
 Steps to Run
 
-Clone the repository.
+Clone the repository or just download the docker-compose file.
 
 Ensure Docker is installed.
 
 Run docker-compose up to start all services.
 
-Access the API Gateway to interact with the microservices.
+Access the API Gateway to interact with the help of postman.
+

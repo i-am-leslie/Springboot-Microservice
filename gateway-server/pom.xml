@@ -35,6 +35,14 @@
 	</properties>
 
 	<dependencies>
+
+<!--		Cloud Stream-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+		</dependency>
+
+<!--		-->
 		<!-- Spring Cloud Gateway Starter -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

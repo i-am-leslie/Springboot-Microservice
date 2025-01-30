@@ -28,6 +28,16 @@ spring:
     health:
       show-details: always
   #zipkin
+  cloud:
+    function:
+      definition: stringSupplier
+    stream:
+      bindings:
+        stringSupplier-out-0:
+          destination: stringSupplier-topic
+      kafka:
+        binder:
+          brokers: localhost:9092
 management:
   endpoints:
     web:
@@ -81,4 +91,3 @@ resilience4j.circuitbreaker:
         maxThreadPoolSize: 10        # Maximum size of the thread pool
         coreThreadPoolSize: 5        # Core size of the thread pool
         queueCapacity: 10            # Queue capacity for excess calls
-
