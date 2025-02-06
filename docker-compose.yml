@@ -26,6 +26,8 @@ services:
       - "8081:8081"
     depends_on:
       - eureka-server
+      - kafka
+      - redis
     environment:
       - SPRING_PROFILES_ACTIVE=docker
 
@@ -38,8 +40,12 @@ services:
     depends_on:
       - eureka-server
       - product-service
+      - kafka
+      - redis
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+#      Redis needs this env variable to run order service
+      - JAVA_TOOL_OPTIONS=--add-opens=java.base/java.nio.charset=ALL-UNNAMED
 
   zipkin:
     image: openzipkin/zipkin

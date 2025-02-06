@@ -7,7 +7,7 @@ This project demonstrates a microservice architecture built with a focus on scal
 The architecture is designed to handle growing demands while maintaining fault tolerance, ensuring the system remains operational even during partial failures. It serves as an example of building a robust, maintainable, and scalable system that adapts to real-world challenges in distributed environments
 
                     Architectural Diagram(The diagram will be getting updates)
-![E-commer-microservice.drawio-2.png](..%2FE-commer-microservice.drawio-2.png)
+![E-commer-microservice.drawio-2.png](E-commer-microservice.drawio-2.png)
 
                             Key components
 Service Design:
