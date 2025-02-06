@@ -24,13 +24,23 @@ spring:
       bindings:
         stringConsumer-in-0:
           destination: stringConsumer-topic
+          group: stringConsumer-group
+          content-type: application/json
         uppercase-in-0:
           destination: stringSupplier-topic
+          content-type: application/json
+#          group: stringConsumer-group
+
         uppercase-out-0:
+          content-type: application/json
           destination: stringConsumer-topic
       kafka:
         binder:
           brokers: localhost:9092
+  data:
+    redis:
+      port: 6379
+      host: localhost
 #    zipkin and health monitoring
 management:
   endpoints:
@@ -93,7 +103,6 @@ resilience4j:
     instances:
       order-service:
         baseConfig: default
-
 
 
 

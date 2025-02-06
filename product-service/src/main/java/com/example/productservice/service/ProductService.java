@@ -1,25 +1,38 @@
 package com.example.productservice.service;
 
+
+import com.example.productservice.DTO.ProductEvent;
 import com.example.productservice.model.Product;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
 import java.util.UUID;
+import org.springframework.cloud.stream.function.StreamBridge;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
+@Slf4j
 
 public class ProductService {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private StreamBridge streamBridge;
+
+    private static final String BINDING_NAME ="stringSupplier-out-0";
+
+
 
 
 
@@ -52,8 +65,14 @@ public class ProductService {
             if (p.getName().equals(productName)){
                 System.out.println(p);
                 ;productRepository.deleteById(p.getProductId());
+                ProductEvent productEvent=new ProductEvent();
+                productEvent= ProductEvent.builder().action("DELETED").primaryId(p.getProductId()).build();
+                streamBridge.setAsync(true);
+                streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
             }
         }
+        log.info("Deleted product {}",productName);
+
     }
 
     public  void createProduct(String productName, Integer price,String productDescritption){
@@ -64,6 +83,11 @@ public class ProductService {
                 .productDescription(productDescritption)
                 .build(); // Build the product
         productRepository.save(product);
+        ProductEvent productEvent=new ProductEvent();
+        productEvent= ProductEvent.builder().action("CREATED").primaryId(product.getProductId()).build();
+        log.info("created product {}",productName);
+        streamBridge.setAsync(true);
+        streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
     }
 
     public Iterable<Product> getAllProducts() {
@@ -75,12 +99,11 @@ public class ProductService {
         Iterable<Product> products=productRepository.findAll();
         for(Product p :products ){
             if (p.getProductId().equals(id)){
-                System.out.println(p);
+                System.out.println(p.toString());
                 return id;
             }
         }
-
-        return  null;
+        return  "null";
     }
 
     public Product fallbackMethod(String productName, Throwable throwable) {

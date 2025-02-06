@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +18,10 @@ import java.util.List;
 public class ProductController {
     @Autowired
     private ProductService productService;
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
+
+
+
 
 
     @GetMapping(value = "/getProduct/{productName}")
@@ -27,8 +31,8 @@ public class ProductController {
 
     @GetMapping(value = "/getProductById/{id}")
     public String getProductById(@PathVariable("id") String id){
-        if(productService.getProductById(id)!=null){
-            return "No id found";
+        if(productService.getProductById(id).equals("null")){
+            return "null";
         }else{
             return id;
         }
@@ -39,12 +43,6 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-
-    @PostConstruct
-    public void init() {
-        // Log to check if ProductService is injected
-        System.out.println("ProductService bean injected: " + (productService != null));
-    }
 
     @PostMapping(value = "/create")
     public void  saveProduct(@RequestBody Product product){

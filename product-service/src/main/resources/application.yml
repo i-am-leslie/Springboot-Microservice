@@ -30,7 +30,7 @@ spring:
   #zipkin
   cloud:
     function:
-      definition: stringSupplier
+      definition:
     stream:
       bindings:
         stringSupplier-out-0:

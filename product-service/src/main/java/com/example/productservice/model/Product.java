@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
+@ToString
 public class Product {
     @Id
     @Column(nullable = false)

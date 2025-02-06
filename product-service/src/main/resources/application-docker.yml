@@ -27,6 +27,16 @@ spring:
   endpoint:
     health:
       show-details: always
+  cloud:
+    function:
+      definition:
+    stream:
+      bindings:
+        stringSupplier-out-0:
+          destination: stringSupplier-topic
+      kafka:
+        binder:
+          brokers: broker:9092
   #zipkin
 management:
   endpoints:
@@ -41,18 +51,6 @@ management:
     tracing:
       enabled: true
       endpoint: http://zipkin:9411/api/v2/spans
-
-#  cloud:
-#    stream:
-#      bindings:
-#        output:
-#          destination: Supplier
-#          content-type: application/json
-#          binder: kafka
-#      kafka:
-#        binder:
-#          brokers: localhost:9092
-#          zkNodes: localhost:2181
 
 eureka:
   instance:

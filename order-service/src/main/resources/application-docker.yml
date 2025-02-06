@@ -17,6 +17,24 @@ spring:
       ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
     show-sql: true      # Show SQL queries in the console
     database-platform: org.hibernate.dialect.H2Dialect
+  cloud:
+    function:
+      definition: stringConsumer;uppercase
+    stream:
+      bindings:
+        stringConsumer-in-0:
+          destination: stringConsumer-topic
+        uppercase-in-0:
+          destination: stringSupplier-topic
+        uppercase-out-0:
+          destination: stringConsumer-topic
+      kafka:
+        binder:
+          brokers: broker:9092
+  data:
+    redis:
+      port: 6379
+      host: redis
 #    zipkin and health monitoring
 management:
   endpoints:
@@ -32,17 +50,7 @@ management:
       enabled: true
       endpoint: http://zipkin:9411/api/v2/spans
 
-#  cloud:
-#    stream:
-#      bindings:
-#        output:
-#          destination: Supplier
-#          content-type: application/json
-#          binder: kafka
-#      kafka:
-#        binder:
-#          brokers: localhost:9092
-#          zkNodes: localhost:2181
+
 
 # Eureka
 eureka:

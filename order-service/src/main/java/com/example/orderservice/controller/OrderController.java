@@ -1,6 +1,8 @@
 package com.example.orderservice.controller;
 
 import com.example.orderservice.model.Orders;
+import com.example.orderservice.redisClient.ProductRestTemplateClient;
+import com.example.orderservice.service.OrderService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping(value="v1/Orders")
 public class OrderController {
     @Autowired
-    private com.example.orderservice.service.orderService orderService;
+    private OrderService orderService;
 
     @PostMapping(value = "/create/{productId}")
     public void saveOrder(@PathVariable("productId") String productId, @RequestBody Orders order) throws TimeoutException {
