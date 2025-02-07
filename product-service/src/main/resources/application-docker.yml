@@ -36,7 +36,7 @@ spring:
           destination: stringSupplier-topic
       kafka:
         binder:
-          brokers: kafka:9092
+          brokers: broker:9092
   #zipkin
 management:
   endpoints:

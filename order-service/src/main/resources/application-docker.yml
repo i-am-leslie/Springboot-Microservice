@@ -30,7 +30,7 @@ spring:
           destination: stringConsumer-topic
       kafka:
         binder:
-          brokers: kafka:9092
+          brokers: broker:9092
   data:
     redis:
       port: 6379
@@ -95,5 +95,5 @@ resilience4j:
       order-service:
         baseConfig: default
 
-product-service:
-  url: http://product:8081
+#product-service:
+#  url: http://product:8081
