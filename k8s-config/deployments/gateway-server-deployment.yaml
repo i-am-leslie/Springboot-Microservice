@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: gateway-server
+  name: gateway-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: gateway-server
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: gateway-server
+    spec:
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+          image: iamleslie/gateway-server:latest
+          name: gateway-server
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always
