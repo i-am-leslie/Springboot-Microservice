@@ -14,3 +14,4 @@ spec:
       targetPort: 8082
   selector:
     io.kompose.service: order-service
+  type: NodePort

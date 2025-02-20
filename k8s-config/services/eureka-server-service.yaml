@@ -14,3 +14,4 @@ spec:
       targetPort: 8761
   selector:
     io.kompose.service: eureka-server
+  type: NodePort

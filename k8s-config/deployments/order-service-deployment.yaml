@@ -26,7 +26,10 @@ spec:
               value: --add-opens=java.base/java.nio.charset=ALL-UNNAMED
             - name: SPRING_PROFILES_ACTIVE
               value: docker
+            - name: EUREKA_SERVER_URL
+              value: http://eureka-server.default.svc.cluster.local:8761/eureka/
           image: iamleslie/order-service:latest
+          imagePullPolicy: Always
           name: order-service
           ports:
             - containerPort: 8082

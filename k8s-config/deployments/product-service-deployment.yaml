@@ -24,7 +24,14 @@ spec:
         - env:
             - name: SPRING_PROFILES_ACTIVE
               value: docker
+            - name: EUREKA_SERVER_URL
+              value: http://eureka-server.default.svc.cluster.local:8761/eureka/
           image: iamleslie/product-service:latest
+          livenessProbe:
+            httpGet:
+              port: 8081
+            initialDelaySeconds: 15
+          imagePullPolicy: Always
           name: product-service
           ports:
             - containerPort: 8081
