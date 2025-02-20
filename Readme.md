@@ -8,7 +8,8 @@ The architecture is designed to handle growing demands while maintaining fault t
 
 # Architectural Diagram(The diagram will be getting updates)
 ![E-commer-microservice.drawio-2.png](E-commer-microservice.drawio-2.png)
-                            Key components
+                            
+                Key components
 The E-commerce system is decomposed into two core components. All of them are independently deployed applications
 organized around based on there functionality.
 ![service.drawio.png](service.drawio.png)
