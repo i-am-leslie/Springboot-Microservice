@@ -1,51 +1,76 @@
-E-Commerce System 
+# E-Commerce System 
 
-Overview 
+# Overview 
 
 This project demonstrates a microservice architecture built with a focus on scalability, reliability, and resilience. By leveraging distributed systems principles, it showcases how multiple services can communicate synchronously to ensure seamless interactions and one service communicates asynchronously to enhance scalability and responsiveness.
 
 The architecture is designed to handle growing demands while maintaining fault tolerance, ensuring the system remains operational even during partial failures. It serves as an example of building a robust, maintainable, and scalable system that adapts to real-world challenges in distributed environments
 
-                    Architectural Diagram(The diagram will be getting updates)
+# Architectural Diagram(The diagram will be getting updates)
 ![E-commer-microservice.drawio-2.png](E-commer-microservice.drawio-2.png)
-
                             Key components
-Service Design:
+The E-commerce system is decomposed into two core components. All of them are independently deployed applications
+organized around based on there functionality.
+![service.drawio.png](service.drawio.png)
 
-    Product Service: Responsible for posting and retrieving product details, ensuring modular separation.
-    
-    Order Service: Manages product ordering, enabling a structured and maintainable service layer.
-    
-    API Gateway: Serves as the central entry point for all requests, facilitating intelligent request routing and load balancing via Eureka. It also helps in enforcing security measures and cross-cutting concerns like correlation IDs.
-    
-Communication:
+Notes
 
-    The services communicate in a stateless manner, using both REST and event-based messaging.
-    
-    Asynchronous Communication: Utilized for long-running processes, with Kafka as the message broker and Redis for caching, reducing database load.
-    
-    Synchronous Communication: Used for critical and frequently accessed data to ensure consistency and reduced latency.
+* Each microservice has its own database, so there is no way to bypass API and access persistence data directly.
+* H2 database(in-memory) is used as a primary database for each of the services.
+* All services are talking to each other via the Rest API(Synchronous) or a kafka message stream (asynchronous) 
 
-Infrastructure:
+# Infrastructure
 
-    Database: The project uses an in-memory database for simplicity, given its personal nature. However, production-ready alternatives like MySQL or PostgreSQL can be used.
-    
-    Message Broker: Kafka is employed to handle event-driven communication efficiently.
-    
-    Monitoring & Logging: Zipkin and Spring Metrics are integrated to observe and trace API calls.
-    
-    Service Discovery: Eureka enables dynamic service registration, intelligent routing, and horizontal scaling.
-    
-    Security: Plans to implement authentication using OAuth2 and Keycloak.
+Spring cloud provides powerful tools for developers to quickly implement common distributed systems patterns
+![infrastructure.png](infrastructure.png)
 
+### API Gateway
 
-Installation
+API Gateway is a single entry point into the system, used to handle requests and routing them to the appropriate backend service. Also, it can be used for authentication, insights, stress and canary testing, service migration, static response handling and active traffic management.
 
-Prerequisites
+### Service Discovery
 
-Docker & Docker Compose: Used for portability, ensuring all dependencies are contained within lightweight containers.
+Service Discovery allows automatic detection of the network locations for all registered services. These locations might have dynamically assigned addresses due to auto-scaling, failures or upgrades.
 
-Future Consideration: Kubernetes may be explored for enhanced orchestration.
+The key part of Service discovery is the Registry. In this project, we use Netflix Eureka. Eureka is a good example of the client-side discovery pattern, where client is responsible for looking up the locations of available service instances and client-side load balancing between them.
+
+With Spring Boot, you can easily build Eureka Registry using the spring-cloud-starter-eureka-server dependency, @EnableEurekaServer annotation and simple configuration properties. This service will be registered with the Eureka Server and provided with metadata such as host, port, health indicator URL, home page etc. Eureka receives heartbeat messages from each instance belonging to the service. If the heartbeat fails over a configurable timetable, the instance will be removed from the registry.
+
+Also, Eureka provides a simple interface where you can track running services and a number of available instances.
+
+### Spring Load balancer, Circuit breaker and Http client
+
+#### Spring Load balancer
+
+Spring Load balancer is a client side load balancer which gives you a lot of control over the behaviour of HTTP and TCP clients. Compared to a traditional load balancer, there is no need in additional network hop - you can contact desired service directly.
+
+Out of the box, it natively integrates with Spring Cloud and Service Discovery. Eureka Client provides a dynamic list of available servers so Spring Load balancer could balance between them.
+
+#### Resilience4j
+
+Resilience4j is the implementation of Resilience Pattern, which gives us a control over latency and network failures while communicating with other services. The main idea is to stop cascading failures in the distributed environment - that helps to fail fast and recover as soon as possible - important aspects of a fault-tolerant system that can self-heal.
+
+Moreover, Spring metric generates metrics on execution outcomes and latency for each command, that we can use to monitor system's behavior.
+
+#### Feign
+
+Feign is a declarative Http client which seamlessly integrates with Ribbon and Hystrix. Actually, a single spring-cloud-starter-feign dependency and @EnableFeignClients annotation gives us a full set of tools, including Load balancer, Circuit Breaker and Http client with reasonable default configuration.
+
+#### Log analysis
+
+Centralized logging can be very useful while attempting to identify problems in a distributed environment. Elasticsearch, Logstash and Kibana stack lets you search and analyze your logs, utilization and network activity data with ease.
+
+#### Distributed tracing
+
+Analyzing problems in distributed systems can be difficult, especially trying to trace requests that propagate from one microservice to another.
+
+Zipkin solves this problem by providing support for the distributed tracing. It adds two types of IDs: traceId and spanId. spanId represents a basic unit of work, for example sending an HTTP request. The traceId contains a set of spans forming a tree-like structure. For example, with a distributed big-data store, a trace might be formed by a PUT request. Using traceId and spanId for each operation we know when and where our application is as it processes a request, making reading logs much easier.
+
+### Let's try it out
+
+Before you start Install Docker and Docker Compose.
+
+#### Currently Working on: Kubernetes is currently being explored for enhanced orchestration.
 
 Steps to Run
 
@@ -55,5 +80,7 @@ Ensure Docker is installed.
 
 Run docker-compose up to start all services.
 
-Access the API Gateway to interact with the help of postman.
+Important endpoints
 
+* http://localhost:8080 - Gateway
+* http://localhost:8761 - Eureka Dashboard
