@@ -28,7 +28,18 @@ spec:
               value: docker
             - name: EUREKA_SERVER_URL
               value: http://eureka-server.default.svc.cluster.local:8761/eureka/
+            - name: BROKER_ADDRESS
+              value: my-release-kafka.default.svc.cluster.local:9092
           image: iamleslie/order-service:latest
+#          livenessProbe:
+#            httpGet:
+#              port: 8081
+#            initialDelaySeconds: 60
+#          readinessProbe:
+#            exec:
+#              command:
+#                - ls
+#                - /var/ready
           imagePullPolicy: Always
           name: order-service
           ports:

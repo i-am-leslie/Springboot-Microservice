@@ -32,4 +32,13 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+#              livenessProbe:
+#                httpGet:
+#                  port: 8081
+#                initialDelaySeconds: 60
+#              readinessProbe:
+#                exec:
+#                  command:
+#                    - ls
+#                    - /var/ready
       restartPolicy: Always

@@ -23,6 +23,15 @@ spec:
       containers:
         - image: iamleslie/eureka-server:latest
           name: eureka-server
+#          livenessProbe:
+#            httpGet:
+#              port: 8081
+#            initialDelaySeconds: 60
+#          readinessProbe:
+#            exec:
+#              command:
+#                - ls
+#                - /var/ready
           ports:
             - containerPort: 8761
               protocol: TCP
