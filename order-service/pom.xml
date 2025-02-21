@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
+		<docker.image.prefix>iamleslie</docker.image.prefix>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -199,6 +200,30 @@
 						<arg>--add-opens=java.base/java.nio.charset=ALL-UNNAMED</arg>
 					</compilerArgs>
 				</configuration>
+			</plugin>
+			<!-- This plugin is used to create a Docker image and publish
+           it to Docker hub-->
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.13</version>
+				<configuration>
+					<repository>${docker.image.prefix}/order-service</repository>
+					<tag>latest</tag>
+					<buildArgs>
+						<JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default</id>
+						<phase>install</phase>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
