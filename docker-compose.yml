@@ -17,6 +17,7 @@ services:
       - eureka-server
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
 
 
   product-service:
@@ -30,6 +31,7 @@ services:
       - redis
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
 
 
   order-service:
@@ -46,6 +48,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
 #      Redis needs this env variable to run order service
       - JAVA_TOOL_OPTIONS=--add-opens=java.base/java.nio.charset=ALL-UNNAMED
+      - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
 
   zipkin:
     image: openzipkin/zipkin
