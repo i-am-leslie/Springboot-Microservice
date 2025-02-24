@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1  # Correct API version
+kind: Ingress
+metadata:
+  name: mini-e-commerce
+spec:
+  rules:
+    - host: miniecommerce.com  # Domain name for the Ingress
+      http:
+        paths:
+          - path: /
+            pathType: Prefix  # Required in v1
+            backend:
+              service:  # New structure in v1
+                name: gateway-server  # Your service name
+                port:
+                  number: 8080  # Service port
+          - path: /product-service 
+            pathType: Prefix  # Required in v1
+            backend:
+              service:  # New structure in v1
+                name: product-service # Your service name
+                port:
+                  number: 8081  # Service port

@@ -31,6 +31,9 @@ spec:
             - name: BROKER_ADDRESS
               value: my-release-kafka.default.svc.cluster.local:9092
           image: iamleslie/order-service:latest
+          volumeMounts:
+            - mountPath: /data/order
+              name: h2-storage
 #          livenessProbe:
 #            httpGet:
 #              port: 8081
@@ -46,3 +49,7 @@ spec:
             - containerPort: 8082
               protocol: TCP
       restartPolicy: Always
+      volumes:
+        - name: h2-storage
+          persistentVolumeClaim:
+            claimName: order-h2-database

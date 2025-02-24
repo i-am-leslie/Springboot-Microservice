@@ -27,6 +27,9 @@ spec:
             - name: EUREKA_SERVER_URL
               value: http://eureka-server.default.svc.cluster.local:8761/eureka/
           image: iamleslie/product-service:latest
+          volumeMounts:
+            - mountPath: /data/product
+              name: h2-storage
 #          livenessProbe:
 #            httpGet:
 #              port: 8081
@@ -42,3 +45,7 @@ spec:
             - containerPort: 8081
               protocol: TCP
       restartPolicy: Always
+      volumes:
+        - name: h2-storage
+          persistentVolumeClaim:
+            claimName: product-h2-database
