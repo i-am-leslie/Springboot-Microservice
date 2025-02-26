@@ -29,11 +29,8 @@ spec:
             - name: EUREKA_SERVER_URL
               value: http://eureka-server.default.svc.cluster.local:8761/eureka/
             - name: BROKER_ADDRESS
-              value: my-release-kafka.default.svc.cluster.local:9092
+              value: my-kafka-controller-headless.default.svc.cluster.local:9092
           image: iamleslie/order-service:latest
-          volumeMounts:
-            - mountPath: /data/order
-              name: h2-storage
 #          livenessProbe:
 #            httpGet:
 #              port: 8081
@@ -49,7 +46,3 @@ spec:
             - containerPort: 8082
               protocol: TCP
       restartPolicy: Always
-      volumes:
-        - name: h2-storage
-          persistentVolumeClaim:
-            claimName: order-h2-database

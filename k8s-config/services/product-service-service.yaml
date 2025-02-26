@@ -14,4 +14,4 @@ spec:
       targetPort: 8081
   selector:
     io.kompose.service: product-service
-  type: NodePort
+  type: ClusterIP

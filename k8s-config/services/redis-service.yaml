@@ -14,4 +14,4 @@
 #      targetPort: 6379
 #  selector:
 #    io.kompose.service: redis
-#  type: NodePort
+#  type: ClusterIP
