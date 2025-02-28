@@ -83,5 +83,23 @@ Run docker-compose up to start all services.
 
 Important endpoints
 
-* http://localhost:8080 - Gateway
-* http://localhost:8761 - Eureka Dashboard
+* http://localhost:8080 - Gateway (Gateway for all services)
+* http://localhost:8761 - Eureka Dashboard(Service Discovery)
+* http://zipkin:9411/api/v2/spans - zipkin(Distributed tracing)
+
+### Example url for integration testing of all services in postman 
+* http://localhost:8080/product-service/v1/product/createAdd 
+ add a json body for example  
+{
+  "productId": "12345",
+  "name": "Dog",
+  "productDescription": "Description of the product",
+  "quantityInStock": "50",
+  "price": 100
+  }
+* http://localhost:8080/product-service/v1/product/getProduct/Dog - Gets the product you just added 
+* http://localhost:8080/order-service/v1/Orders/create/{Prouuctid} - Use the product id from the previous url 
+* http://localhost:8080/product-service/v1/product/getAllProducts - Gets all products
+* http://localhost:8080/order-service/v1/Orders/orders - Gets all orders 
+* http://localhost:8080/product-service/v1/product/delete/{productName}- deletes a product 
+ 

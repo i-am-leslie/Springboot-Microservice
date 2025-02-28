@@ -25,13 +25,10 @@ import java.util.concurrent.TimeoutException;
 public class OrderService {
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderRepository orderRepository; // storing orders in the database
 
     @Autowired
-    private FeignClient feign;
-
-    @Autowired
-    private ProductRestTemplateClient redisCache;
+    private ProductRestTemplateClient redisCache; // for caching
 
 
 
@@ -41,12 +38,11 @@ public class OrderService {
     @RateLimiter(name = "order-service",
             fallbackMethod = "buildFallOrderList")
     public Orders saveOrder(Orders order, String productId) throws TimeoutException{
-//        String id= feign.getProductById(productId);
-//        System.out.println(id);
         Product p=redisCache.getProduct(productId);
         String id= p.getProductId();
-        redisCache.getCachedProducts();
-        if (order!=null && id!=null ){
+        System.out.println("In saveOrder method and id="+id);
+        if (order!=null && !id.isEmpty() ){
+            System.out.println("Saving"+" " +id +"to order repo " );
             System.out.println(id);
             order.setOrderId(UUID.randomUUID().toString());
             order.getProductsId().add(productId);
@@ -55,7 +51,6 @@ public class OrderService {
             return order;
         }
         return null;
-//        log.info("Order has been placed");
     }
 
     public void deleteOrder(Orders order){

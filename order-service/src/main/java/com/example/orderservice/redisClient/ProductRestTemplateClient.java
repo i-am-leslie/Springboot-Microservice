@@ -3,6 +3,7 @@ import com.example.orderservice.DTO.ProductEvent;
 import com.example.orderservice.feign.FeignClient;
 import com.example.orderservice.model.Product;
 import com.example.orderservice.repository.OrderRedisRepository;
+import com.example.orderservice.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class ProductRestTemplateClient {
     @Lazy
     OrderRedisRepository orderRedisRepository;
 
+
     @Autowired
     FeignClient feignClient;
 
@@ -41,21 +43,16 @@ public class ProductRestTemplateClient {
             return null;
         }
     }
-    private void cacheOrganizationObject(Product product) {
+    private void cacheProductObject(Product product) {
         try {
+
             orderRedisRepository.save(product);
+            System.out.println("Saved product in redis");
         }catch (Exception ex){
-            System.out.println("Couldnt cache product:" +product.getProductId() +" "+ex.getMessage());
+            System.out.println("Couldnt save product:" +product.getProductId() +" "+ex.getMessage()+": in redis redis");
         }
     }
 
-    public void getCachedProducts(){
-        Iterable<Product> products = orderRedisRepository.findAll();
-        System.out.println("Getting all products in redis");
-        for (Product product : products) {
-            System.out.println(product.getProductId());
-        }
-    }
 
     public Product getProduct(String productId){
         Product product = CheckRedisCache(productId);
@@ -65,15 +62,15 @@ public class ProductRestTemplateClient {
         }
         System.out.println("Unable to find product in redis with id:" + " "+productId);
         String product1= feignClient.getProductById(productId);
-        System.out.println("Got product from product service database "+ " "+product1);
         if(product1.equals("null")){
             System.out.println("Could not find product in product service database");
             return null;
         }
+        System.out.println("Got product from product service database "+ " "+product1);
         product=new Product();
-        product.setProductId(productId);
-        cacheOrganizationObject(product);
-        System.out.println("Saved product in product redis repo");
+        product.setProductId(product1);
+        System.out.println("In getProduct method and set product=" +product.getProductId());
+        cacheProductObject(product);
         return product;
     }
 
