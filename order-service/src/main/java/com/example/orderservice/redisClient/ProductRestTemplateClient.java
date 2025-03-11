@@ -45,7 +45,6 @@ public class ProductRestTemplateClient {
     }
     private void cacheProductObject(Product product) {
         try {
-
             orderRedisRepository.save(product);
             System.out.println("Saved product in redis");
         }catch (Exception ex){

@@ -33,8 +33,10 @@ public class ProductService {
     private static final String BINDING_NAME ="stringSupplier-out-0";
 
 
-
-
+    /**
+     * Not in use yet
+     * @param product
+     */
 
     public  void saveProduct(Product product){
         logger.info("Saving product: {}", product.getName());
@@ -46,6 +48,14 @@ public class ProductService {
         logger.info("Saved product: {}", product.getName());
         productRepository.save(product);
     }
+
+    /**
+     * Gets the product that is being searched for
+     *
+     * @author Leslie
+     * @param productName The string name
+     * @return Product  The prodyct that needs to be found
+     */
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackMethod")
     @Bulkhead(name="product service",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
     public Product findProductByName(String productName){
@@ -59,6 +69,12 @@ public class ProductService {
         throw new RuntimeException("Product not found");
     }
 
+    /**
+     * Deletes the product from the database
+     *
+     * @param productName
+     *
+     */
     public void deleteProduct(String productName){
         Iterable<Product> products=productRepository.findAll();
         for(Product p :products ){
@@ -75,6 +91,13 @@ public class ProductService {
 
     }
 
+    /**
+     * Creates a prodyct with the parameters
+     *
+     * @param productName
+     * @param price
+     * @param productDescritption
+     */
     public  void createProduct(String productName, Integer price,String productDescritption){
         Product product = Product.builder()
                 .productId(UUID.randomUUID().toString()) // Set productId
@@ -90,11 +113,23 @@ public class ProductService {
         streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
     }
 
+    /**
+     *  Gets all products in the database
+     * @return products
+     */
     public Iterable<Product> getAllProducts() {
         Iterable<Product> products= productRepository.findAll();
         return products;
     }
 
+
+    /**
+     * Gets the product with the specified id
+     * @param id
+     * @return id
+     *
+     * @runtime O(n)
+     */
     public String getProductById(String id){
         Iterable<Product> products=productRepository.findAll();
         for(Product p :products ){
@@ -105,6 +140,7 @@ public class ProductService {
         }
         return  "null";
     }
+
 
     public Product fallbackMethod(String productName, Throwable throwable) {
         System.err.println("Fallback triggered for product: " + productName);
