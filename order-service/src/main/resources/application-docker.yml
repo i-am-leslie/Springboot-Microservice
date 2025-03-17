@@ -46,7 +46,7 @@ management:
   tracing:
     enabled: true
     sampling:
-      probability: 1.0
+      probability: 0.5
   zipkin:
     tracing:
       enabled: true
