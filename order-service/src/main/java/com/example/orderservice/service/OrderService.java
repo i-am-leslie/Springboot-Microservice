@@ -28,11 +28,30 @@ public class OrderService {
     private OrderRepository orderRepository; // storing orders in the database
 
     @Autowired
-    private ProductRestTemplateClient redisCache; // for caching
+    private ProductRestTemplateClient redisCache; // for caching products to reduce queries for database
 
 
 
 //    When an order is created it must have a id  or ids
+
+    /**
+     * Saves the given order with the associated product ID. If the product is not found in the Redis cache,
+     * it retrieves the product from an external service and caches it. Then, it generates a unique order ID,
+     * associates the product with the order, and saves it in the order repository.
+     *
+     * @param order The order to be saved.
+     * @param productId The product ID associated with the order.
+     * @return The saved order object.
+     * @throws TimeoutException If the operation takes longer than expected.
+     *
+     * Best case time complexity: O(1) when the product is found in the Redis cache, as Redis performs constant
+     * time lookups.
+     *
+     * Worst case time complexity: O(log n) when the product is not found in the cache, requiring a lookup
+     * from the product service and saving the order in the database. The database insert is O(log n) due to
+     * the time spent indexing the product using a B-tree.
+     */
+
     @CircuitBreaker(name="order-service",fallbackMethod = "buildFallOrderList")
     @Retry(name = "retryOrderService", fallbackMethod= "buildFallOrderList")
     @RateLimiter(name = "order-service",
@@ -53,9 +72,15 @@ public class OrderService {
         return null;
     }
 
-    public void deleteOrder(Orders order){
-//        log.info("Deleting order: {}",order.getOrderId());
-        orderRepository.delete(order);
+    /**
+     * This method deletes an order through the id
+     * @param orderId
+     *
+     * Worst case time complexity is O(Log n ) due to it using indexing for hte database
+     */
+    public void deleteOrder(String orderId){
+        orderRepository.deleteById(orderId);
+        System.out.println("Deleted order"+" "+orderId);
     }
 
     public Optional<Orders> getOrderDetails(String orderId){
@@ -63,15 +88,30 @@ public class OrderService {
 
     }
 
+    /**
+     * Retrieves all orders from the order repository.
+     *
+     * @return An iterable collection of all orders.
+     * @throws TimeoutException If the operation takes longer than expected.
+     * Time complexity: O(n) where 'n' is the number of orders in the database.
+     * The `findAll()` method iterates through all records in the database to return the orders.
+     */
+
     @CircuitBreaker(name="order-service",fallbackMethod = "getOrdersFallback")
     @Retry(name = "retryOrderService", fallbackMethod= "getOrdersFallback")
     @RateLimiter(name = "order-service",
             fallbackMethod = "getOrdersFallback")
     public Iterable <Orders> getOrders() throws TimeoutException{
         return orderRepository.findAll();
-
     }
 
+    /**
+     * Fall back method for resilience to return some data to the user in case an error occurs.
+     * @param order
+     * @param productId
+     * @param t
+     * @return order
+     */
     private Orders buildFallOrderList(Orders order, String productId,Throwable t){
         HashSet<String> fallbackSet=new HashSet<>();
         order.setOrderId("0000000-00-00000");

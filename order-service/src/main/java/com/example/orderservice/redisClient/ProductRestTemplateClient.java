@@ -32,7 +32,7 @@ public class ProductRestTemplateClient {
     enum Action{DELETED, CREATED}
 
 
-
+    // O(log n)
     private Product CheckRedisCache(String productId){
         try {
             return orderRedisRepository
@@ -60,7 +60,7 @@ public class ProductRestTemplateClient {
             return product;
         }
         System.out.println("Unable to find product in redis with id:" + " "+productId);
-        String product1= feignClient.getProductById(productId);
+        String product1= feignClient.getProductById(productId); //O (log n)
         if(product1.equals("null")){
             System.out.println("Could not find product in product service database");
             return null;
@@ -90,9 +90,13 @@ public class ProductRestTemplateClient {
                 ProductEvent p =objectMapper.readValue(message, ProductEvent.class );
                 if(p.getAction().equals(Action.DELETED.toString())){
                     orderRedisRepository.deleteById(p.getPrimaryId());
-                }else{
+                    System.out.println("Deleted product"+ " " + p.getPrimaryId());
+                }
+                else{
                     System.out.println("Saving to redis");
-                    this.getProduct(p.getPrimaryId());
+                    Product product=new Product();
+                    product.setProductId(p.getPrimaryId());
+                    this.cacheProductObject(product);
                 }
 
             } catch (Exception e) {

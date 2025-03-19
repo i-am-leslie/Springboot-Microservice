@@ -30,4 +30,11 @@ public class OrderController {
     public Iterable<Orders> getAllOrders() throws TimeoutException {
         return  orderService.getOrders();
     }
+
+    @DeleteMapping(value = "/delete/{orderId}")
+    public void deleteOrder(@PathVariable("orderId") String orderId ){
+        System.out.println("Removing order"+ " " + orderId);
+        orderService.deleteOrder(orderId);
+
+    }
 }

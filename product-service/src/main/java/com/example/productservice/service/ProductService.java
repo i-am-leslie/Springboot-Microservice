@@ -12,6 +12,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
+import java.util.Iterator;
 import java.util.UUID;
 import org.springframework.cloud.stream.function.StreamBridge;
 
@@ -76,15 +77,12 @@ public class ProductService {
      *
      */
     public void deleteProduct(String productName){
-        Iterable<Product> products=productRepository.findAll();
-        for(Product p :products ){
+        Iterable<Product> products=productRepository.findByName(productName);
+        for(Product p :products ){ // overhead even when the product is found  would leave this for now
             if (p.getName().equals(productName)){
-                System.out.println(p);
-                ;productRepository.deleteById(p.getProductId());
-                ProductEvent productEvent=new ProductEvent();
-                productEvent= ProductEvent.builder().action("DELETED").primaryId(p.getProductId()).build();
-                streamBridge.setAsync(true);
-                streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
+                productRepository.deleteById(p.getProductId());
+                sendToRedisCache("DELETED",p.getProductId());
+                break;
             }
         }
         log.info("Deleted product {}",productName);
@@ -106,11 +104,16 @@ public class ProductService {
                 .productDescription(productDescritption)
                 .build(); // Build the product
         productRepository.save(product);
-        ProductEvent productEvent=new ProductEvent();
-        productEvent= ProductEvent.builder().action("CREATED").primaryId(product.getProductId()).build();
+        sendToRedisCache("CREATED", product.getProductId());
         log.info("created product {}",productName);
+
+    }
+    public void sendToRedisCache(String action,String productId ){
+        ProductEvent productEvent=new ProductEvent();
+        productEvent= ProductEvent.builder().action(action).primaryId(productId).build();
         streamBridge.setAsync(true);
         streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
+
     }
 
     /**
