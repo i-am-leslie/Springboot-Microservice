@@ -98,7 +98,7 @@ public class ProductService {
                 .productDescription(productDescritption)
                 .build(); // Build the product
         productRepository.save(product);
-//        sendToRedisCache("CREATED", product.getProductId());
+        sendToRedisCache("CREATED", product.getProductId());
         log.info("created product {}",productName);
 
     }
