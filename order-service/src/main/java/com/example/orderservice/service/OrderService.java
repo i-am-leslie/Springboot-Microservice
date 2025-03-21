@@ -102,7 +102,7 @@ public class OrderService {
     @RateLimiter(name = "order-service",
             fallbackMethod = "getOrdersFallback")
     public Iterable <Orders> getOrders() throws TimeoutException{
-        return orderRepository.findAll();
+        return orderRepository.findAll();// memory inefficient for large data sets
     }
 
     /**
@@ -113,7 +113,7 @@ public class OrderService {
      * @return order
      */
     private Orders buildFallOrderList(Orders order, String productId,Throwable t){
-        HashSet<String> fallbackSet=new HashSet<>();
+        HashSet<String> fallbackSet=new HashSet<>(); // receives an invalid data
         order.setOrderId("0000000-00-00000");
         order.setProductsId(fallbackSet);
         order.setOrderStatus(

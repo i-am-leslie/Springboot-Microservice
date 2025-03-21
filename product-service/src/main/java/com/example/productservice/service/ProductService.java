@@ -8,11 +8,13 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.cloud.stream.function.StreamBridge;
 
@@ -60,7 +62,7 @@ public class ProductService {
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackMethod")
     @Bulkhead(name="product service",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
     public Product findProductByName(String productName){
-        Iterable<Product> products=productRepository.findAll();
+        Iterable<Product> products=productRepository.findAll(); // memory inefficient for large data sets
         for(Product p :products ){
             if (p.getName().equals(productName)){
                 System.out.println(p);
@@ -77,16 +79,8 @@ public class ProductService {
      *
      */
     public void deleteProduct(String productName){
-        Iterable<Product> products=productRepository.findByName(productName);
-        for(Product p :products ){ // overhead even when the product is found  would leave this for now
-            if (p.getName().equals(productName)){
-                productRepository.deleteById(p.getProductId());
-                sendToRedisCache("DELETED",p.getProductId());
-                break;
-            }
-        }
-        log.info("Deleted product {}",productName);
-
+        productRepository.deleteFirstByName(productName);
+        logger.info("Product deleted");
     }
 
     /**
@@ -104,7 +98,7 @@ public class ProductService {
                 .productDescription(productDescritption)
                 .build(); // Build the product
         productRepository.save(product);
-        sendToRedisCache("CREATED", product.getProductId());
+//        sendToRedisCache("CREATED", product.getProductId());
         log.info("created product {}",productName);
 
     }
@@ -121,8 +115,7 @@ public class ProductService {
      * @return products
      */
     public Iterable<Product> getAllProducts() {
-        Iterable<Product> products= productRepository.findAll();
-        return products;
+        return productRepository.findAll();
     }
 
 
@@ -131,17 +124,15 @@ public class ProductService {
      * @param id
      * @return id
      *
-     * @runtime O(n)
+     * @runtime O(Log n)
      */
     public String getProductById(String id){
-        Iterable<Product> products=productRepository.findAll();
-        for(Product p :products ){
-            if (p.getProductId().equals(id)){
-                System.out.println(p.toString());
-                return id;
-            }
+        if(productRepository.findById(id).isPresent()){
+            Product product=  productRepository.findById(id).get();
+            logger.info("Product found");
+            return product.toString();
         }
-        return  "null";
+        return "No product found with specified id";
     }
 
 
