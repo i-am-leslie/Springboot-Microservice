@@ -12,6 +12,9 @@ import java.util.List;
 public interface ProductRepository extends CrudRepository<Product,String> {
      List<Product> findByName(String productName);
 
+     @Query("SELECT p.productId FROM Product p WHERE p.name = :productName")
+     String findIdByName(String productName);
+
      @Modifying
      @Transactional
      @Query("delete From Product where name= :productName")

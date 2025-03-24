@@ -79,8 +79,15 @@ public class ProductService {
      *
      */
     public void deleteProduct(String productName){
-        productRepository.deleteFirstByName(productName);
-        logger.info("Product deleted");
+        String productId =  productRepository.findIdByName(productName);
+        if(productId!=null){
+            productRepository.deleteFirstByName(productName);
+            sendToRedisCache("DELETED", productId);
+            logger.info("Product deleted");
+        }else{
+            logger.info("Product Not found in database please check the name");
+        }
+
     }
 
     /**
@@ -103,7 +110,7 @@ public class ProductService {
 
     }
     public void sendToRedisCache(String action,String productId ){
-        ProductEvent productEvent=new ProductEvent();
+        ProductEvent productEvent;
         productEvent= ProductEvent.builder().action(action).primaryId(productId).build();
         streamBridge.setAsync(true);
         streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
@@ -132,7 +139,7 @@ public class ProductService {
             logger.info("Product found");
             return product.toString();
         }
-        return "No product found with specified id";
+        return "null";
     }
 
 
