@@ -1,4 +1,4 @@
-package com.example.orderservice.service;
+package com.example.orderservice.redisClient;
 
 import java.util.function.Consumer;
 

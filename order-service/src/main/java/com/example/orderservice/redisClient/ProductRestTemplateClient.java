@@ -3,7 +3,7 @@ import com.example.orderservice.DTO.ProductEvent;
 import com.example.orderservice.feign.FeignClient;
 import com.example.orderservice.model.Product;
 import com.example.orderservice.repository.OrderRedisRepository;
-import com.example.orderservice.repository.OrderRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,7 +29,10 @@ public class ProductRestTemplateClient {
     @Autowired
     FeignClient feignClient;
 
+    private HashMap<String, EventAction> events;
+
     enum Action{DELETED, CREATED}
+
 
 
     // O(log n)
@@ -74,33 +77,60 @@ public class ProductRestTemplateClient {
     }
 
 
-
-//      consuming message and performing logic to the data received
+    /**
+     * Processes messages from Kafka by transforming the raw JSON string into a ProductEvent object.
+     * This is a functional method that utilizes a lambda function to deserialize the message.
+     * @return A Function that takes a JSON string as input and returns a ProductEvent object.
+     *
+     * Time Complexity: O(1), as it performs a single deserialization operation and contains a fixed number of values
+     * Space Complexity : O(n) fixed number of attributes
+     */
     @Bean
-    public Function<String, String> uppercase() {
-        return value -> value;  // Transform the data to uppercase
+    public Function<String, ProductEvent> uppercase() {
+        return message -> {
+            System.out.println("Messaged passed through kafka, Heading to the consumer function for order service");
+            ObjectMapper objectMapper = new ObjectMapper();
+            ProductEvent productEvent;
+            try {
+                productEvent =objectMapper.readValue(message, ProductEvent.class );
+            } catch (JsonProcessingException e) {
+                System.err.println("Error parsing message: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+            return productEvent;};
     }
 
+    /**
+     * Processes a ProductEvent by applying the appropriate operation based on the event type.
+     * Uses a HashMap to store lambda functions that define the behavior for each event type
+     *
+     * @return A Consumer that takes a ProductEvent and performs an action based on its type
+     * *Time Complexity: O(1), as HashMap lookup and function execution are constant-time operations.
+     * Space Complexity: O(1), because we have a fixed number of entry (changes coming later)
+     */
     @Bean
-    public Consumer<String> stringConsumer() {
-        return message -> {
-            try {
-                System.out.println("Messaged passed through kafka and is about to be processed by Order service");
-                ObjectMapper objectMapper = new ObjectMapper();
-                ProductEvent p =objectMapper.readValue(message, ProductEvent.class );
-                if(p.getAction().equals(Action.DELETED.toString())){
-                    orderRedisRepository.deleteById(p.getPrimaryId());
-                    System.out.println("Deleted product"+ " " + p.getPrimaryId());
-                }
-                else{
-                    System.out.println("Saving to redis");
-                    Product product=new Product();
-                    product.setProductId(p.getPrimaryId());
-                    this.cacheProductObject(product);
-                }
+    public Consumer<ProductEvent> stringConsumer() {
+        return ProductEvent -> {
+            if (events == null) {
+                events = new HashMap<>();
+                events.put("DELETED", productId -> {
+                    orderRedisRepository.deleteById(productId);
+                    System.out.println("Deleted product " + productId);
+                });
 
-            } catch (Exception e) {
-                System.err.println("Error parsing message: " + e.getMessage());
+                events.put("CREATED", productId -> {
+                    System.out.println("Saving to redis");
+                    Product product = new Product();
+                    product.setProductId(productId);
+                    cacheProductObject(product);
+                });
+            }
+
+            Consumer<String> operation=events.get(ProductEvent.getAction());
+            if(operation!=null){
+                operation.accept(ProductEvent.getPrimaryId());
+            }else{
+                throw new UnsupportedOperationException("Invalid operation");
             }
         };
     }
