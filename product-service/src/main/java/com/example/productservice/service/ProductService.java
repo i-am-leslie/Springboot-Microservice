@@ -33,6 +33,9 @@ public class ProductService {
     @Autowired
     private StreamBridge streamBridge;
 
+    @Autowired
+    private ProductSearchHelper productSearchHelper;
+
     private static final String BINDING_NAME ="stringSupplier-out-0";
 
 
@@ -62,14 +65,15 @@ public class ProductService {
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackMethod")
     @Bulkhead(name="product service",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
     public Product findProductByName(String productName){
-        Iterable<Product> products=productRepository.findAll(); // memory inefficient for large data sets
-        for(Product p :products ){
-            if (p.getName().equals(productName)){
-                System.out.println(p);
-                return p;
-            }
-        }
-        throw new RuntimeException("Product not found");
+//        Iterable<Product> products=productRepository.findAll(); // memory inefficient for large data sets
+//        for(Product p :products ){
+//            if (p.getName().equals(productName)){
+//                System.out.println(p);
+//                return p;
+//            }
+//        }
+//        throw new RuntimeException("Product not found");
+        return productSearchHelper.searchProducts(productName);
     }
 
     /**
