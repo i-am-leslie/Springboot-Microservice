@@ -1,5 +1,7 @@
 package com.example.orderservice.controller;
 
+import com.example.orderservice.DTO.StatusChange;
+import com.example.orderservice.model.OrderStatus;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.redisClient.ProductRestTemplateClient;
 import com.example.orderservice.service.OrderService;
@@ -36,5 +38,10 @@ public class OrderController {
         System.out.println("Removing order"+ " " + orderId);
         orderService.deleteOrder(orderId);
 
+    }
+
+    @PostMapping(value="/change/status")
+    public void changeOrderStatus(@RequestBody StatusChange statusChange){
+        orderService.changeOrderStatus(statusChange);  // create a dto
     }
 }

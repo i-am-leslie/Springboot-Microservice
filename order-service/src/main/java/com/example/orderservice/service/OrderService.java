@@ -1,5 +1,6 @@
 package com.example.orderservice.service;
 
+import com.example.orderservice.DTO.StatusChange;
 import com.example.orderservice.feign.FeignClient;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.model.OrderStatus;
@@ -85,7 +86,16 @@ public class OrderService {
 
     public Optional<Orders> getOrderDetails(String orderId){
         return orderRepository.findById(orderId);
+    }
 
+    public void changeOrderStatus(StatusChange statusChange){
+        if(orderRepository.existsById(statusChange.orderId())){
+            Optional<Orders> order= orderRepository.findById(statusChange.orderId());
+            order.get().setOrderStatus(statusChange.status());
+            orderRepository.save(order.get());
+        }else{
+            throw new RuntimeException("Order not found in database");
+        }
     }
 
     /**
