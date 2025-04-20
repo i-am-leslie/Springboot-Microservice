@@ -29,9 +29,12 @@ services:
       - eureka-server
       - kafka
       - redis
+      - db
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
+      - POSTGRES_USER= admin       # Username
+      - POSTGRES_PASSWORD= password
 
 
   order-service:
@@ -44,11 +47,14 @@ services:
       - product-service
       - kafka
       - redis
+      - db
     environment:
       - SPRING_PROFILES_ACTIVE=docker
 #      Redis needs this env variable to run order service
       - JAVA_TOOL_OPTIONS=--add-opens=java.base/java.nio.charset=ALL-UNNAMED
       - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
+      - POSTGRES_USER= admin       # Username
+      - POSTGRES_PASSWORD= password
 
   zipkin:
     image: openzipkin/zipkin
@@ -80,35 +86,27 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+  db:
+    image: postgres
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_USER: admin       # Username
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8089:8080
 
-        #  elasticsearch:
-#    image: elasticsearch:8.17.1
-#    container_name: elasticsearch
-##    volumes:
-##      - esdata1:/usr/share/elasticsearch/data
-#    environment:
-#      - ELASTIC_PASSWORD=password
-#    ports:
-#      - 9300:9300
-#      - 9200:9200
-#  kibana:
-#    image: kibana:8.17.1
-#    container_name: kibana
-#    environment:
-#      ELASTICSEARCH_URL: "http://elasticsearch:9300"
-#      ELASTIC_PASSWORD: "password"
-#    ports:
-#      - 5601:5601
-#
-#  logstash:
-#    image: logstash:8.17.1
-#    container_name: logstash
-#    command: logstash -f /etc/logstash/conf.d/logstash.conf
-#    volumes:
-#      - ./logstash.conf:/etc/logstash/conf.d/logstash.conf
-#
-#    ports:
-#      - "5001:5001"   # Map port 5001 for TCP input (matching your logstash.conf)
-#      - "9600:9600"
 
 

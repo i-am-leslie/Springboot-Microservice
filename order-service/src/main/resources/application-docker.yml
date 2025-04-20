@@ -5,19 +5,15 @@ spring:
   application:
     name: order-service
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:orderdb
-    username: sa
-    password: password
-    hikari:
-      pool-name: H2Pool
-      maximum-pool-size: 10
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD=}
   jpa:
     hibernate:
       ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
     show-sql: true      # Show SQL queries in the console
-    database-platform: org.hibernate.dialect.H2Dialect
-  cloud:
+    cloud:
     function:
       definition: stringConsumer;uppercase
     stream:
