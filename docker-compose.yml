@@ -33,8 +33,24 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
-      - POSTGRES_USER= admin       # Username
-      - POSTGRES_PASSWORD= password
+      - POSTGRES_USER=admin       # Username
+      - POSTGRES_PASSWORD=password
+
+  product-service-2:
+    image: iamleslie/product-service:latest
+    container_name: product-service-2
+    ports:
+      - "8071:8081"
+    depends_on:
+      - eureka-server
+      - kafka
+      - redis
+      - db
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
+      - POSTGRES_USER=admin       # Username
+      - POSTGRES_PASSWORD=password
 
 
   order-service:
@@ -53,8 +69,9 @@ services:
 #      Redis needs this env variable to run order service
       - JAVA_TOOL_OPTIONS=--add-opens=java.base/java.nio.charset=ALL-UNNAMED
       - EUREKA_SERVER_URL= http://eureka-server:8761/eureka/
-      - POSTGRES_USER= admin       # Username
-      - POSTGRES_PASSWORD= password
+      - POSTGRES_USER=admin       # Username
+      - POSTGRES_PASSWORD=password
+      - BROKER_ADDRESS=broker:9092
 
   zipkin:
     image: openzipkin/zipkin

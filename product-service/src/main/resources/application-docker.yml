@@ -6,9 +6,9 @@ spring:
     name: product-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/
+    url: jdbc:postgresql://db:5432/
     username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD=}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
