@@ -86,7 +86,7 @@ public class ProductRestTemplateClient {
      * Space Complexity : O(n) fixed number of attributes
      */
     @Bean
-    public Function<String, ProductEvent> uppercase() {
+    public Function<String, ProductEvent> productEvent() {
         return message -> {
             System.out.println("Messaged passed through kafka, Heading to the consumer function for order service");
             ObjectMapper objectMapper = new ObjectMapper();
@@ -109,7 +109,7 @@ public class ProductRestTemplateClient {
      * Space Complexity: O(1), because we have a fixed number of entry (changes coming later)
      */
     @Bean
-    public Consumer<ProductEvent> stringConsumer() {
+    public Consumer<ProductEvent> productConsumer() {
         return ProductEvent -> {
             if (events == null) {
                 events = new HashMap<>();

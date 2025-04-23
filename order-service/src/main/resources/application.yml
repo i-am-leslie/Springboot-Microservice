@@ -22,18 +22,16 @@ spring:
       definition: stringConsumer;uppercase
     stream:
       bindings:
-        stringConsumer-in-0:
-          destination: stringConsumer-topic
-          group: stringConsumer-group
+        productConsumer-in-0:
+          destination: productConsumer-topic
+          group: productConsumer-group
           content-type: application/json
-        uppercase-in-0:
-          destination: stringSupplier-topic
+        productEvent-in-0:
+          destination: productSupplier-topic
           content-type: application/json
-#          group: stringConsumer-group
-
-        uppercase-out-0:
+        productEvent-out-0:
           content-type: application/json
-          destination: stringConsumer-topic
+          destination: productConsumer-topic
       kafka:
         binder:
           brokers: localhost:9092

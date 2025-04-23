@@ -8,13 +8,10 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
-import java.util.Iterator;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.cloud.stream.function.StreamBridge;
 
@@ -34,9 +31,9 @@ public class ProductService {
     private StreamBridge streamBridge;
 
     @Autowired
-    private ProductSearchHelper productSearchHelper;
+    private ProductFuzzySearch productFuzzySearch;
 
-    private static final String BINDING_NAME ="stringSupplier-out-0";
+    private static final String BINDING_NAME ="productSupplier-out-0";
 
 
     /**
@@ -73,7 +70,7 @@ public class ProductService {
 //            }
 //        }
 //        throw new RuntimeException("Product not found");
-        return productSearchHelper.searchProducts(productName);
+        return productFuzzySearch.searchProducts(productName);
     }
 
     /**

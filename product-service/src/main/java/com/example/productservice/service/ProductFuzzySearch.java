@@ -4,13 +4,11 @@ import com.example.productservice.model.Product;
 import com.example.productservice.repository.ProductRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
-public class ProductSearchHelper {
+public class ProductFuzzySearch {
     private ProductRepository productRepo;
 
-    public  ProductSearchHelper(ProductRepository productRepo){
+    public ProductFuzzySearch(ProductRepository productRepo){
         this.productRepo=productRepo;
     }
 
