@@ -19,7 +19,7 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   cloud:
     function:
-      definition: productConsumer;productEvent
+      definition: productConsumer;productEvent  # needed for multiple binders and topics
     stream:
       bindings:
         productConsumer-in-0:  # binding name
