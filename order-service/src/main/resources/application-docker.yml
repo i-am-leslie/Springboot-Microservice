@@ -15,16 +15,17 @@ spring:
     show-sql: true      # Show SQL queries in the console
   cloud:
     function:
-      definition: stringConsumer;uppercase
+      definition: productConsumer;productEvent
     stream:
       bindings:
-        productConsumer-in-0:
-          destination: productConsumer-topic
+        productConsumer-in-0: # binding name (kafka)
+          destination: productConsumer-topic  # Topic (Data is kept here)
           group: productConsumer-group
           content-type: application/json
         productEvent-in-0:
           destination: productSupplier-topic
           content-type: application/json
+          group: productEvent-group
         productEvent-out-0:
           content-type: application/json
           destination: productConsumer-topic

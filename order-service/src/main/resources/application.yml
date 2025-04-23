@@ -19,16 +19,17 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   cloud:
     function:
-      definition: stringConsumer;uppercase
+      definition: productConsumer;productEvent
     stream:
       bindings:
-        productConsumer-in-0:
-          destination: productConsumer-topic
+        productConsumer-in-0:  # binding name
+          destination: productConsumer-topic # Topic
           group: productConsumer-group
           content-type: application/json
-        productEvent-in-0:
-          destination: productSupplier-topic
+        productEvent-in-0:  # binding name
+          destination: productSupplier-topic # Topic
           content-type: application/json
+          group: productEvent-group
         productEvent-out-0:
           content-type: application/json
           destination: productConsumer-topic
