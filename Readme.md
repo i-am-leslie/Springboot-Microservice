@@ -6,8 +6,8 @@ This project demonstrates a microservice architecture built with a focus on scal
 
 The architecture is designed to handle growing demands while maintaining fault tolerance, ensuring the system remains operational even during partial failures. It serves as an example of building a robust, maintainable, and scalable system that adapts to real-world challenges in distributed environments
 
-# Architectural Diagram(The diagram will be getting updates)
-![E-commer-microservice.drawio-2.png](E-commer-microservice.drawio-2.png)
+# Architectural Diagram
+![Micorservice.drawio.png](Micorservice.drawio.png)
                             
                 Key components
 The E-commerce system is decomposed into two core components. All of them are independently deployed applications
@@ -23,7 +23,7 @@ Notes
 # Infrastructure
 
 Spring cloud provides powerful tools for developers to quickly implement common distributed systems patterns
-![infrastructure.png](infrastructure.png)
+
 
 ### API Gateway
 
@@ -87,8 +87,8 @@ Important endpoints
 * http://localhost:8761 - Eureka Dashboard(Service Discovery)
 * http://zipkin:9411/api/v2/spans - zipkin(Distributed tracing)
 
-### Example url for integration testing of all services in postman 
-* http://localhost:8080/product-service/v1/product/createAdd 
+### Example API endpoints for integration testing of all services in postman 
+* http://localhost:8080/product-service/v1/product/create 
  add a json body for example  
 {
   "productId": "12345",
@@ -97,7 +97,7 @@ Important endpoints
   "quantityInStock": "50",
   "price": 100
   }
-* http://localhost:8080/product-service/v1/product/getProduct/Dog - Gets the product you just added 
+* http://localhost:8080/product-service/v1/product/getProduct/Dog - Gets the product added as long as the name is there it also uses fuzzy search in case of user error
 * http://localhost:8080/order-service/v1/Orders/create/{Prouuctid} - Use the product id from the previous url 
 * http://localhost:8080/product-service/v1/product/getAllProducts - Gets all products
 * http://localhost:8080/order-service/v1/Orders/orders - Gets all orders 

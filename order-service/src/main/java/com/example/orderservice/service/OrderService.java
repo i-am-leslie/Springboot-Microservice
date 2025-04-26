@@ -135,7 +135,6 @@ public class OrderService {
         System.out.println("Fallback for getting orders triggered ");
         List<Orders> orderList = new ArrayList<>(); // Create an empty list
         return orderList; // Return the empty list
-
     }
 
 
