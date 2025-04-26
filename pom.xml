@@ -19,6 +19,7 @@
 		<module>product-service</module>
 		<module>order-service</module>
 		<module>gateway-server</module>
+		<module>configserver</module>
 	</modules>
 	<groupId>com.example</groupId>
 	<artifactId>Mini-E-commerce-System</artifactId>

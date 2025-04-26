@@ -1,0 +1,82 @@
+example:
+  message: Hello from the default config!
+server:
+  port: 8081
+
+spring:
+#  application:
+#    name: product-service
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:product-db
+    username: sa
+    password: password
+    hikari:
+      pool-name: H2Pool
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
+    show-sql: true      # Show SQL queries in the console
+    database-platform: org.hibernate.dialect.H2Dialect
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+  #zipkin
+  cloud:
+    function:
+      definition:
+    stream:
+      bindings:
+        productSupplier-out-0:
+          destination: productSupplier-topic
+      kafka:
+        binder:
+          brokers: localhost:9092
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings,health
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      enabled: true
+      endpoint: http://localhost:9411/api/v2/spans
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    enabled: true
+
+resilience4j.circuitbreaker:
+  instances:
+    product-service:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000ms
+      permittedNumberOfCallsInHalfOpenState: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      slowCallRateThreshold: 100
+      slowCallDurationThreshold: 2s
+  thread-pool-bulkhead:
+    instances:
+      productServiceThreadPool:
+        maxThreadPoolSize: 10        # Maximum size of the thread pool
+        coreThreadPoolSize: 5        # Core size of the thread pool
+        queueCapacity: 10            # Queue capacity for excess calls
