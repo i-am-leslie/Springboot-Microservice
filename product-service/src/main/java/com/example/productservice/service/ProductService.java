@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+
 import org.springframework.cloud.stream.function.StreamBridge;
 
 
@@ -62,23 +64,16 @@ public class ProductService {
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackMethod")
     @Bulkhead(name="product service",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
     public Product findProductByName(String productName){
-//        Iterable<Product> products=productRepository.findAll(); // memory inefficient for large data sets
-//        for(Product p :products ){
-//            if (p.getName().equals(productName)){
-//                System.out.println(p);
-//                return p;
-//            }
-//        }
-//        throw new RuntimeException("Product not found");
         return productFuzzySearch.searchProducts(productName);
     }
 
     /**
      * Deletes the product from the database
-     *
+     * @author Leslie
      * @param productName
      *
      */
+    @CircuitBreaker(name="product service", fallbackMethod = "fallbackDeleteMethod")
     public void deleteProduct(String productName){
         String productId =  productRepository.findIdByName(productName);
         if(productId!=null){
@@ -150,6 +145,11 @@ public class ProductService {
 
         // You can return a default or null product
         return new Product();
+    }
+
+    public void fallbackDeleteMethod(String productName, Throwable throwable) {
+        logger.error("Fallback triggered while deleting product: {}. Reason: {}", productName, throwable.getMessage());
+
     }
 
 }

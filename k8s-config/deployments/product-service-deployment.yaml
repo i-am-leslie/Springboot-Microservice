@@ -28,6 +28,8 @@ spec:
               value: http://eureka-server.default.svc.cluster.local:8761/eureka/
             - name: BROKER_ADDRESS
               value: kafka-controller-headless.default.svc.cluster.local:9092
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: http://config-server.default.svc.cluster.local:8045
           image: iamleslie/product-service:latest
 #          livenessProbe:
 #            httpGet:

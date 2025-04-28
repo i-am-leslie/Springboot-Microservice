@@ -45,6 +45,25 @@ services:
       - POSTGRES_USER=admin       # Username
       - POSTGRES_PASSWORD=password # Password
 
+  product-service-2:
+    image: iamleslie/product-service:latest
+    restart: on-failure
+    container_name: product-service-2
+    ports:
+      - "8000:8000"
+    depends_on:
+      - eureka-server
+      - kafka
+      - redis
+      - db
+      - config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8045
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - POSTGRES_USER=admin       # Username
+      - POSTGRES_PASSWORD=password # Password
+
   order-service:
     image: iamleslie/order-service:latest
     restart: on-failure
@@ -68,11 +87,13 @@ services:
       - POSTGRES_USER=admin       # Username
       - POSTGRES_PASSWORD=password
       - BROKER_ADDRESS=broker:9092
+
+
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
     ports:
-      - 9411:9411
+      - "9411:9411"
 
 
   kafka:
@@ -97,7 +118,7 @@ services:
     image: redis:alpine
     container_name: redis
     ports:
-      - 6379:6379
+      - "6379:6379"
   db:
     image: postgres
     restart: always
@@ -113,12 +134,22 @@ services:
       POSTGRES_USER: admin       # Username
       POSTGRES_PASSWORD: password
     ports:
-      - 5432:5432
+      - "5432:5432"
   adminer:
     image: adminer
     restart: always
     ports:
-      - 8089:8080
-
+      - "8089:8080"
+#  prometheus:
+#    image: prom/prometheus
+#    container_name: prometheus
+#    ports:
+#      - "9090:9090"
+#  grafana:
+#    image: grafana/grafana
+#    container_name: grafana
+#    restart: always
+#    ports:
+#      - "3003:3003"
 
 

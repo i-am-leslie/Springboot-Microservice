@@ -32,6 +32,8 @@ spec:
               value: kafka-controller-headless.default.svc.cluster.local:9092
             - name: REDIS
               value: my-release-redis-headless
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: http://config-server.default.svc.cluster.local:8045
           image: iamleslie/order-service:latest
 #          livenessProbe:
 #            httpGet:
