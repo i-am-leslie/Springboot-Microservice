@@ -30,6 +30,12 @@ spec:
               value: kafka-controller-headless.default.svc.cluster.local:9092
             - name: SPRING_CLOUD_CONFIG_URI
               value: http://config-server.default.svc.cluster.local:8045
+            - name: POSTGRES_URL
+              value: jdbc:postgresql://my-postgres-postgresql.default.svc.cluster.local:5432/postgres
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: password
           image: iamleslie/product-service:latest
 #          livenessProbe:
 #            httpGet:

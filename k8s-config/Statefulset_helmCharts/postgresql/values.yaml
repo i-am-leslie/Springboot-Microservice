@@ -35,9 +35,9 @@ global:
     ## @param global.postgresql.auth.secretKeys.replicationPasswordKey Name of key in existing secret to use for PostgreSQL credentials (overrides `auth.secretKeys.replicationPasswordKey`). Only used when `global.postgresql.auth.existingSecret` is set.
     ##
     auth:
-      postgresPassword: ""
-      username: ""
-      password: ""
+      postgresPassword: "password"
+      username: "admin"
+      password: "password"
       database: ""
       existingSecret: ""
       secretKeys:
@@ -782,7 +782,7 @@ primary:
   persistence:
     ## @param primary.persistence.enabled Enable PostgreSQL Primary data persistence using PVC
     ##
-    enabled: true
+    enabled: false
     ## @param primary.persistence.volumeName Name to assign the volume
     ##
     volumeName: "data"
@@ -1239,7 +1239,7 @@ readReplicas:
   persistence:
     ## @param readReplicas.persistence.enabled Enable PostgreSQL read only data persistence using PVC
     ##
-    enabled: true
+    enabled: false
     ## @param readReplicas.persistence.existingClaim Name of an existing PVC to use
     ##
     existingClaim: ""
