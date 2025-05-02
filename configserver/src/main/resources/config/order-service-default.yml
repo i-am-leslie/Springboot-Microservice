@@ -45,7 +45,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: mappings,health
+        include: mappings,health,metrics
   tracing:
     enabled: true
     sampling:

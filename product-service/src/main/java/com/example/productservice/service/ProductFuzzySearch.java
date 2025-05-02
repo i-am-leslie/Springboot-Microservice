@@ -64,10 +64,6 @@ public class ProductFuzzySearch {
         Iterable<Product> productList=  productRepo.findAll();
 
         for(Product product :  productList){
-
-//            if(product.getName().length() == usersProductName.length()){
-//
-//            }
             levDistance= levenshteinDistance(usersProductName, product.getName());
             System.out.println("Currently comparing this product:"+" " + usersProductName + " "+"and"+ " " + product.getName());
             if(levDistance < min ){

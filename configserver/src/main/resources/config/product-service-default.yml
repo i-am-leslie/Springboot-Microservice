@@ -19,16 +19,6 @@ spring:
       ddl-auto: update  # Automatically create the schema (use 'create' or 'update')
     show-sql: true      # Show SQL queries in the console
     database-platform: org.hibernate.dialect.H2Dialect
-  health:
-    circuitbreakers:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health
-  endpoint:
-    health:
-      show-details: always
   #zipkin
   cloud:
     function:
@@ -44,10 +34,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: mappings,health
-        base-path: "/"
-        path-mapping:
-          prometheus: "metrics"
+        include: mappings,health,metrics
+  health:
+    circuitbreakers:
+      enabled: true
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
   tracing:
     enabled: true
     sampling:
@@ -68,19 +62,19 @@ eureka:
 
 resilience4j:
   circuitbreaker:
-  instances:
-    product-service:
-      registerHealthIndicator: true
-      slidingWindowSize: 10
-      failureRateThreshold: 50
-      waitDurationInOpenState: 10000ms
-      permittedNumberOfCallsInHalfOpenState: 5
-      automaticTransitionFromOpenToHalfOpenEnabled: true
-      slowCallRateThreshold: 100
-      slowCallDurationThreshold: 2s
+    instances:
+      product-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 1000ms
+        permittedNumberOfCallsInHalfOpenState: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 2s
   thread-pool-bulkhead:
     instances:
       productServiceThreadPool:
-        maxThreadPoolSize: 10        # Maximum size of the thread pool
+        maxThreadPoolSize: 5        # Maximum size of the thread pool
         coreThreadPoolSize: 5        # Core size of the thread pool
-        queueCapacity: 10            # Queue capacity for excess calls
+        queueCapacity: 5        # Queue capacity for excess calls

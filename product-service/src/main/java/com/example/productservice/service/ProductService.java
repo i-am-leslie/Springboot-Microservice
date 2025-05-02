@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 import org.springframework.cloud.stream.function.StreamBridge;
 
@@ -61,8 +60,8 @@ public class ProductService {
      * @param productName The string name
      * @return Product  The prodyct that needs to be found
      */
-    @CircuitBreaker(name="product service", fallbackMethod = "fallbackMethod")
-    @Bulkhead(name="product service",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
+    @CircuitBreaker(name="product-service", fallbackMethod = "fallbackMethod")
+    @Bulkhead(name="productServiceThreadPool",type = Bulkhead.Type.THREADPOOL,fallbackMethod = "fallbackMethod")
     public Product findProductByName(String productName){
         return productFuzzySearch.searchProducts(productName);
     }
@@ -78,7 +77,7 @@ public class ProductService {
         String productId =  productRepository.findIdByName(productName);
         if(productId!=null){
             productRepository.deleteFirstByName(productName);
-            sendToRedisCache("DELETED", productId);
+            sendToOrderService("DELETED", productId);
             logger.info("Product deleted");
         }else{
             logger.info("Product Not found in database please check the name");
@@ -101,16 +100,25 @@ public class ProductService {
                 .productDescription(productDescritption)
                 .build(); // Build the product
         productRepository.save(product);
-        sendToRedisCache("CREATED", product.getProductId());
+        sendToOrderService("CREATED", product.getProductId());
         log.info("created product {}",productName);
 
     }
-    public void sendToRedisCache(String action,String productId ){
+
+    /**
+     * Method to publish to kafka for order service to save to redis for caching. it is done asynchronously
+     * @param action
+     * @param productId
+     *
+     * @runtime  depends pn the streamBridge.send() method because it could fail and retry
+     */
+    @CircuitBreaker(name="product-service", fallbackMethod = "fallbackSendToOrderService")
+    @Bulkhead(name="productServiceThreadPool", type = Bulkhead.Type.THREADPOOL)
+    public void sendToOrderService(String action, String productId){
         ProductEvent productEvent;
         productEvent= ProductEvent.builder().action(action).primaryId(productId).build();
         streamBridge.setAsync(true);
         streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
-
     }
 
     /**
@@ -130,7 +138,7 @@ public class ProductService {
      * @runtime O(Log n)
      */
     public String getProductById(String id){
-        if(productRepository.findById(id).isPresent()){
+        if(productRepository.existsById(id)){
             Product product=  productRepository.findById(id).get();
             logger.info("Product found");
             return product.toString();
@@ -149,7 +157,10 @@ public class ProductService {
 
     public void fallbackDeleteMethod(String productName, Throwable throwable) {
         logger.error("Fallback triggered while deleting product: {}. Reason: {}", productName, throwable.getMessage());
+    }
 
+    public void fallbackSendToOrderService(String action,String productId, Throwable throwable) {
+        logger.error("Fallback triggered while Sending to order service productId:{}. productName: {}. Reason: {}",productId, productId, throwable.getMessage());
     }
 
 }
