@@ -1,6 +1,7 @@
 package com.example.productservice.service;
 
 
+import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.DTO.ProductEvent;
 import com.example.productservice.model.Product;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
@@ -73,35 +74,35 @@ public class ProductService {
      *
      */
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackDeleteMethod")
-    public void deleteProduct(String productName){
+    public boolean deleteProduct(String productName){
         String productId =  productRepository.findIdByName(productName);
         if(productId!=null){
             productRepository.deleteFirstByName(productName);
             sendToOrderService("DELETED", productId);
             logger.info("Product deleted");
-        }else{
-            logger.info("Product Not found in database please check the name");
+            return true;
         }
-
+        logger.info("Product Not found in database please check the name");
+        return false;
     }
 
     /**
      * Creates a prodyct with the parameters
      *
-     * @param productName
-     * @param price
-     * @param productDescritption
+     * @param productDTO
      */
-    public  void createProduct(String productName, Integer price,String productDescritption){
+    public  void createProduct(ProductRequestDTO productDTO){
         Product product = Product.builder()
                 .productId(UUID.randomUUID().toString()) // Set productId
-                .name(productName) // Set productName
-                .price(price) // Set price
-                .productDescription(productDescritption)
+                .name(productDTO.name()) // Set productName
+                .price(productDTO.price()) // Set price
+                .productDescription(productDTO.description()) // set description
+                .quantityInStock(productDTO.quantityInStock())
                 .build(); // Build the product
+        System.out.println(productDTO.description());
         productRepository.save(product);
         sendToOrderService("CREATED", product.getProductId());
-        log.info("created product {}",productName);
+        log.info("created product {}",product.getName());
 
     }
 
@@ -122,7 +123,7 @@ public class ProductService {
     }
 
     /**
-     *  Gets all products in the database
+     *  Gets all products in the database. Note it could break if so many prodyucts are on the database so its best to use pagination approach
      * @return products
      */
     public Iterable<Product> getAllProducts() {
@@ -137,13 +138,13 @@ public class ProductService {
      *
      * @runtime O(Log n)
      */
-    public String getProductById(String id){
+    public boolean getProductById(String id){
         if(productRepository.existsById(id)){
             Product product=  productRepository.findById(id).get();
             logger.info("Product found");
-            return product.toString();
+            return true;
         }
-        return "null";
+        return false;
     }
 
 
