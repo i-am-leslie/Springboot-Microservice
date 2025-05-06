@@ -6,6 +6,9 @@ import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -17,8 +20,8 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping(value = "/get/{productName}")
-    public ResponseEntity<Product> getProduct(@PathVariable("productName") String productName){
-        return new ResponseEntity<>( productService.findProductByName(productName), HttpStatus.OK);
+    public ResponseEntity<?> getProduct(@PathVariable("productName") String productName){
+        return ResponseEntity.ok(productService.findProductByName(productName));
     }
 
     @GetMapping(value = "/getId/{id}")
@@ -31,9 +34,11 @@ public class ProductController {
     }
 
     @GetMapping(value = "/getAll")
-    public Iterable<Product> allProducts(){
-        return productService.getAllProducts();
-    } // need refractoring
+    public ResponseEntity<?>  allProducts(@RequestParam(name = "page", defaultValue = "0") int page,
+                                     @RequestParam(name = "size", defaultValue = "10") int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(productService.getAllProducts(pageable));
+    }
 
 
     @PostMapping(value = "/create")
@@ -43,7 +48,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping(value = "/delete/{productName}")
+    @DeleteMapping(value = "/delete/{productName}")  // refractoring  to use id because name is not reliable
     public ResponseEntity<?> deleteProduct(@PathVariable("productName")String productName){
         if(productService.deleteProduct(productName)) return  ResponseEntity.status(HttpStatus.OK).build();
         return ResponseEntity.notFound().build();

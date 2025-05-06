@@ -1,6 +1,7 @@
 package com.example.productservice.service;
 
 
+import com.example.productservice.DTO.ProductDTO;
 import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.DTO.ProductEvent;
 import com.example.productservice.model.Product;
@@ -9,10 +10,13 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -123,11 +127,23 @@ public class ProductService {
     }
 
     /**
-     *  Gets all products in the database. Note it could break if so many prodyucts are on the database so its best to use pagination approach
+     *  Gets all products in the database using pagination to split the data for efficiency
      * @return products
+     *
+     * @runtime  0(log n) because we are working on a fixed subset in the iteration and log n because
+     * pageable just returns a subset of the product data
      */
-    public Iterable<Product> getAllProducts() {
-        return productRepository.findAll();
+    public ProductDTO[] getAllProducts(Pageable page) {
+        List<Product> listOfProducts= productRepository.findAll(page).getContent();
+        ProductDTO[] products= new ProductDTO[listOfProducts.size()];
+        for(int i=0; i < listOfProducts.size(); i++){
+            Product product= listOfProducts.get(i);
+            products[i]= new ProductDTO(product.getName(),
+                    product.getProductDescription(),
+                    product.getQuantityInStock(),
+                    product.getPrice());
+        }
+        return products;
     }
 
 

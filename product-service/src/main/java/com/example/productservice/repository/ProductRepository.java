@@ -2,6 +2,7 @@ package com.example.productservice.repository;
 
 import com.example.productservice.model.Product;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface ProductRepository extends CrudRepository<Product,String> {
+public interface ProductRepository extends JpaRepository<Product,String> {
      List<Product> findByName(String productName);
 
      @Query("SELECT p.productId FROM Product p WHERE p.name = :productName")
