@@ -97,8 +97,8 @@ resilience4j:
     configs:
       default:
         timeoutDuration: 1000ms
-        limitRefreshPeriod: 5000ms
-        limitForPeriod: 5
+        limitRefreshPeriod: 1000ms
+        limitForPeriod: 2
     instances:
       order-service:
         baseConfig: default

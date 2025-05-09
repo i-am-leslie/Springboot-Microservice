@@ -1,12 +1,10 @@
 package com.example.productservice.Controller;
 
 import com.example.productservice.DTO.ProductRequestDTO;
-import com.example.productservice.model.Product;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +23,9 @@ public class ProductController {
     }
 
     @GetMapping(value = "/getId/{id}")
-    public ResponseEntity<?>  getProductById(@PathVariable("id") String id){  // need refractoring for the order service
+    public ResponseEntity<String>  getProductById(@PathVariable("id") String id){  // need refractoring for the order service
         boolean productExist=productService.getProductById(id);
-        if(productExist){
-            return ResponseEntity.ok(id);
-        }
+        if(productExist) return ResponseEntity.ok(id);
         return ResponseEntity.notFound().build();
     }
 
@@ -45,14 +41,16 @@ public class ProductController {
     public ResponseEntity<?> create(@Valid @RequestBody ProductRequestDTO product){
         log.info("Saving product {}", product.name());
         productService.createProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok("Product created");
     }
 
     @DeleteMapping(value = "/delete/{productName}")  // refractoring  to use id because name is not reliable
-    public ResponseEntity<?> deleteProduct(@PathVariable("productName")String productName){
-        if(productService.deleteProduct(productName)) return  ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<?> deleteProduct(@PathVariable("productName")String productId){
+        if(productService.deleteProduct(productId)) return  ResponseEntity.status(HttpStatus.OK).build();
         return ResponseEntity.notFound().build();
     }
 
+
+    //Create api that filters basedx
 
 }

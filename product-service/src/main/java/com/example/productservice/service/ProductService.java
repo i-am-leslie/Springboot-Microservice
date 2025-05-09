@@ -10,20 +10,24 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.cloud.stream.function.StreamBridge;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Slf4j
@@ -107,7 +111,6 @@ public class ProductService {
         productRepository.save(product);
         sendToOrderService("CREATED", product.getProductId());
         log.info("created product {}",product.getName());
-
     }
 
     /**
@@ -127,7 +130,8 @@ public class ProductService {
     }
 
     /**
-     *  Gets all products in the database using pagination to split the data for efficiency
+     *  Gets all products in the database using pagination to split the data for efficiency and uses the stream api
+     *  to convert all products to a productdto amd decided not to go wtih stream api because the data is low
      * @return products
      *
      * @runtime  0(log n) because we are working on a fixed subset in the iteration and log n because
@@ -143,6 +147,10 @@ public class ProductService {
                     product.getQuantityInStock(),
                     product.getPrice());
         }
+//        List<ProductDTO> products= listOfProducts.stream().map((Product p)-> new ProductDTO(p.getName(),
+//                p.getProductDescription(),
+//                p.getQuantityInStock(),
+//                p.getPrice())).collect(toList());
         return products;
     }
 
@@ -155,12 +163,7 @@ public class ProductService {
      * @runtime O(Log n)
      */
     public boolean getProductById(String id){
-        if(productRepository.existsById(id)){
-            Product product=  productRepository.findById(id).get();
-            logger.info("Product found");
-            return true;
-        }
-        return false;
+        return productRepository.existsById(id);
     }
 
 

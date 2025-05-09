@@ -1,25 +1,27 @@
 package com.example.orderservice.controller;
 
 import com.example.orderservice.DTO.StatusChange;
-import com.example.orderservice.model.OrderStatus;
 import com.example.orderservice.model.Orders;
-import com.example.orderservice.redisClient.ProductRestTemplateClient;
 import com.example.orderservice.service.OrderService;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 @RestController
-@RequestMapping(value="v1/Orders")
+@RequestMapping(value="api/v1/Orders")
 public class OrderController {
     @Autowired
     private OrderService orderService;
 
     @PostMapping(value = "/create/{productId}")
-    public void saveOrder(@PathVariable("productId") String productId, @RequestBody Orders order) throws TimeoutException {
-        orderService.saveOrder(order, productId);
+    public ResponseEntity<String> saveOrder(@PathVariable("productId") String productId, @RequestBody Optional<Orders> order) throws TimeoutException {
+        if(orderService.saveOrder(order, productId)) return ResponseEntity.ok("New order created");
+        return ResponseEntity.ok("Order creation failed");
     }
 
     @PostConstruct
@@ -28,20 +30,21 @@ public class OrderController {
         System.out.println("orderService bean injected: " + (orderService != null));
     }
 
-    @GetMapping(value = "/orders")
-    public Iterable<Orders> getAllOrders() throws TimeoutException {
-        return  orderService.getOrders();
+    @GetMapping(value = "/all")
+    public ResponseEntity<Iterable<Orders>> getAllOrders() throws TimeoutException {
+        return  ResponseEntity.ok(orderService.getOrders());
     }
 
     @DeleteMapping(value = "/delete/{orderId}")
-    public void deleteOrder(@PathVariable("orderId") String orderId ){
+    public ResponseEntity<String> deleteOrder(@PathVariable("orderId") String orderId ){
         System.out.println("Removing order"+ " " + orderId);
         orderService.deleteOrder(orderId);
-
+        return ResponseEntity.ok("Deleted Product");
     }
 
     @PostMapping(value="/change/status")
-    public void changeOrderStatus(@RequestBody StatusChange statusChange){
+    public ResponseEntity<String> changeOrderStatus(@Valid @RequestBody StatusChange statusChange){
         orderService.changeOrderStatus(statusChange);  // create a dto
+        return ResponseEntity.ok("Changed order status");
     }
 }

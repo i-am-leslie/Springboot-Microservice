@@ -1,7 +1,6 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.DTO.StatusChange;
-import com.example.orderservice.feign.FeignClient;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.model.OrderStatus;
 import com.example.orderservice.model.Product;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeoutException;
 public class OrderService {
 
     @Autowired
-    private OrderRepository orderRepository; // storing orders in the database
+    private OrderRepository orderRepository;
 
     @Autowired
     private ProductRestTemplateClient redisCache; // for caching products to reduce queries for database
@@ -53,24 +52,22 @@ public class OrderService {
      * the time spent indexing the product using a B-tree.
      */
 
-    @CircuitBreaker(name="order-service",fallbackMethod = "buildFallOrderList")
-    @Retry(name = "retryOrderService", fallbackMethod= "buildFallOrderList")
+    @CircuitBreaker(name="order-service",fallbackMethod = "failedOrder")
+    @Retry(name = "retryOrderService", fallbackMethod= "failedOrder")
     @RateLimiter(name = "order-service",
-            fallbackMethod = "buildFallOrderList")
-    public Orders saveOrder(Orders order, String productId) throws TimeoutException{
+            fallbackMethod = "failedOrder")
+    public boolean saveOrder(Optional<Orders> order, String productId) throws TimeoutException{  // add a response incase the product wasnt found
         Product p=redisCache.getProduct(productId);
         String id= p.getProductId();
-        System.out.println("In saveOrder method and id="+id);
-        if (order!=null && !id.isEmpty() ){
-            System.out.println("Saving"+" " +id +"to order repo " );
-            System.out.println(id);
-            order.setOrderId(UUID.randomUUID().toString());
-            order.getProductsId().add(productId);
-            order.setOrderStatus(OrderStatus.PENDING);
-            orderRepository.save(order);
-            return order;
+        if(order.isPresent() && !id.isEmpty()){
+            Orders newOrder= new Orders();
+            newOrder.setOrderId(UUID.randomUUID().toString());
+            newOrder.getProductsId().add(productId);
+            newOrder.setOrderStatus(OrderStatus.PENDING);
+            orderRepository.save(newOrder);
+            return true;
         }
-        return null;
+        return false;
     }
 
     /**
@@ -79,7 +76,7 @@ public class OrderService {
      *
      * Worst case time complexity is O(Log n ) due to it using indexing for hte database
      */
-    public void deleteOrder(String orderId){
+    public void deleteOrder(String orderId){  // need refractoring
         orderRepository.deleteById(orderId);
         System.out.println("Deleted order"+" "+orderId);
     }
@@ -89,13 +86,11 @@ public class OrderService {
     }
 
     public void changeOrderStatus(StatusChange statusChange){
-        if(orderRepository.existsById(statusChange.orderId())){
-            Optional<Orders> order= orderRepository.findById(statusChange.orderId());
-            order.get().setOrderStatus(statusChange.status());
-            orderRepository.save(order.get());
-        }else{
-            throw new RuntimeException("Order not found in database");
-        }
+        Orders order = orderRepository.findById(statusChange.orderId())
+                .orElseThrow(() -> new RuntimeException("Order not found in database"));
+
+        order.setOrderStatus(statusChange.status());
+        orderRepository.save(order);
     }
 
     /**
@@ -112,7 +107,7 @@ public class OrderService {
     @RateLimiter(name = "order-service",
             fallbackMethod = "getOrdersFallback")
     public Iterable <Orders> getOrders() throws TimeoutException{
-        return orderRepository.findAll();// memory inefficient for large data sets
+        return orderRepository.findAll();// memory inefficient for large data sets use pageable
     }
 
     /**
@@ -122,19 +117,19 @@ public class OrderService {
      * @param t
      * @return order
      */
-    private Orders buildFallOrderList(Orders order, String productId,Throwable t){
+    private boolean failedOrder(Optional<Orders> order, String productId,Throwable t){
         HashSet<String> fallbackSet=new HashSet<>(); // receives an invalid data
-        order.setOrderId("0000000-00-00000");
-        order.setProductsId(fallbackSet);
-        order.setOrderStatus(
+        Orders failedOrder=new Orders();
+        failedOrder.setOrderId("0000000-00-00000");
+        failedOrder.setProductsId(fallbackSet);
+        failedOrder.setOrderStatus(
                 OrderStatus.CANCELLED);
-        return order;
+        return false;
     }
 
     private Iterable<Orders> getOrdersFallback(Throwable t){
         System.out.println("Fallback for getting orders triggered ");
-        List<Orders> orderList = new ArrayList<>(); // Create an empty list
-        return orderList; // Return the empty list
+        return new ArrayList<>(); // Return the empty list
     }
 
 

@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -36,14 +39,13 @@ public class ProductRestTemplateClient {
 
 
     // O(log n)
-    private Product CheckRedisCache(String productId){
+    private Optional<Product> CheckRedisCache(String productId){
         try {
             return orderRedisRepository
-                    .findById(productId)
-                    .orElse(null);
+                    .findById(productId);
         }catch (Exception ex){
             System.out.println("Error encountered while trying to retrieve product Exception : "+ " "+ex.getMessage());
-            return null;
+            return  Optional.empty();
         }
     }
     private void cacheProductObject(Product product) {
@@ -56,24 +58,26 @@ public class ProductRestTemplateClient {
     }
 
 
-    public Product getProduct(String productId){
-        Product product = CheckRedisCache(productId);
-        if(product!=null){
-            System.out.println("i have successfully retrieved product id:" + product.getProductId());
-            return product;
+    public Product getProduct(String productId){  // Needs fixing
+        Optional<Product> product = CheckRedisCache(productId);
+        if(product.isPresent()){
+            System.out.println("i have successfully retrieved product id:" + product.map(Product::getProductId));
+            return product.get();
         }
         System.out.println("Unable to find product in redis with id:" + " "+productId);
-        String product1= feignClient.getProductById(productId); //O (log n)
-        if(product1.equals("null")){
-            System.out.println("Could not find product in product service database");
+        ResponseEntity<String> restTemplateId;
+        Product storeProduct=new Product();
+        try{
+            restTemplateId= feignClient.getProductById(productId);
+            System.out.println("Got product from product service database "+ " "+restTemplateId.getBody());
+            storeProduct.setProductId(restTemplateId.getBody());
+            cacheProductObject(storeProduct);
+
+        }catch(feign.FeignException ex){
+            System.out.println("Could not find product in product service database"+ " "+ ex.getMessage());
             return null;
         }
-        System.out.println("Got product from product service database "+ " "+product1);
-        product=new Product();
-        product.setProductId(product1);
-        System.out.println("In getProduct method and set product=" +product.getProductId());
-        cacheProductObject(product);
-        return product;
+        return storeProduct;
     }
 
 
