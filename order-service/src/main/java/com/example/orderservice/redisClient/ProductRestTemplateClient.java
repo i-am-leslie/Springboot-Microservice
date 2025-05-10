@@ -53,7 +53,7 @@ public class ProductRestTemplateClient {
             orderRedisRepository.save(product);
             System.out.println("Saved product in redis");
         }catch (Exception ex){
-            System.out.println("Couldnt save product:" +product.getProductId() +" "+ex.getMessage()+": in redis redis");
+            System.out.println("Could not save product:" +product.getProductId() +" "+ex.getMessage()+": in redis redis");
         }
     }
 

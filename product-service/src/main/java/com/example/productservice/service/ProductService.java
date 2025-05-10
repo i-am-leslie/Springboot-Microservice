@@ -34,16 +34,23 @@ import static java.util.stream.Collectors.toList;
 
 public class ProductService {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
-    @Autowired
-    private ProductRepository productRepository;
 
-    @Autowired
-    private StreamBridge streamBridge;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ProductFuzzySearch productFuzzySearch;
+
+    private final StreamBridge streamBridge;
+
+
+    private final  ProductFuzzySearch productFuzzySearch;
 
     private static final String BINDING_NAME ="productSupplier-out-0";
+
+
+    public ProductService(ProductRepository productRepository, StreamBridge streamBridge, ProductFuzzySearch productFuzzySearch ){
+        this.productRepository=productRepository;
+        this.streamBridge=streamBridge;
+        this.productFuzzySearch=productFuzzySearch;
+    }
 
 
     /**
@@ -107,7 +114,6 @@ public class ProductService {
                 .productDescription(productDTO.description()) // set description
                 .quantityInStock(productDTO.quantityInStock())
                 .build(); // Build the product
-        System.out.println(productDTO.description());
         productRepository.save(product);
         sendToOrderService("CREATED", product.getProductId());
         log.info("created product {}",product.getName());
