@@ -58,16 +58,16 @@ public class ProductService {
      * @param product
      */
 
-    public  void saveProduct(Product product){
-        logger.info("Saving product: {}", product.getName());
-        if (product.getProductId()==null){
-            product.setProductId(UUID.randomUUID().toString());
-        }else{
-            return;
-        }
-        logger.info("Saved product: {}", product.getName());
-        productRepository.save(product);
-    }
+//    public  void saveProduct(Product product){
+//        logger.info("Saving product: {}", product.getName());
+//        if (product.getProductId()==null){
+//            product.setProductId(UUID.randomUUID().toString());
+//        }else{
+//            return;
+//        }
+//        logger.info("Saved product: {}", product.getName());
+//        productRepository.save(product);
+//    }
 
     /**
      * Gets the product that is being searched for

@@ -1,24 +1,27 @@
 package com.example.productservice.service;
 
+import com.example.productservice.DTO.ProductDTO;
+import com.example.productservice.DTO.ProductEvent;
 import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.model.Product;
 import com.example.productservice.repository.ProductRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.Message;
 
-import java.util.UUID;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,14 +36,12 @@ class ProductServiceTest {
 
 
     private ProductService productService;
-    private AutoCloseable closeable;
+
 
 
     @BeforeEach
     void setUp(){
-        closeable =MockitoAnnotations.openMocks(this);
         productService = new ProductService(productRepository,streamBridge,productFuzzySearch);
-
     }
 
 
@@ -53,11 +54,25 @@ class ProductServiceTest {
 
     @Test
     void findProductByName() {
+        //Given
+        String productName="Fan";
+        Product product1= new Product("123","Fan","Test product","1",1);
+        productRepository.save(product1);
 
+
+        //When
+        when(productFuzzySearch.searchProducts(productName)).thenReturn(product1);
+        Product expectedProduct=productService.findProductByName(productName);
+
+
+        //Then
+        assertEquals(product1,expectedProduct);
+        verify(productFuzzySearch).searchProducts(productName);
     }
 
     @Test
     void deleteProduct() {
+
     }
 
     @Test
@@ -75,7 +90,7 @@ class ProductServiceTest {
 
         // Then
         ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
-        verify(productRepository).save(productCaptor.capture());
+        verify(productRepository).save(productCaptor.capture()); //verifies that the repository method was called
         Product savedProduct = productCaptor.getValue();
         assertEquals("Fan", savedProduct.getName());
         assertEquals("Description", savedProduct.getProductDescription());
@@ -85,10 +100,43 @@ class ProductServiceTest {
 
     @Test
     void sendToOrderService() {
+        // Given
+        String action = "CREATED";
+        String productId = "1234";
+
+        // When
+        productService.sendToOrderService(action, productId);
+
+        // Then
+        ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
+        Message<ProductEvent> sentMessage = productEventCaptor.getValue();
+        ProductEvent event = sentMessage.getPayload();
+        assertEquals("CREATED", event.getAction());
+        assertEquals("1234", event.getPrimaryId());
+
+
     }
 
     @Test
     void getAllProducts() {
+        //Given
+        Product product1= new Product("123","product1","Test product","1",1);
+        Product product2= new Product("121","product2","Test product","1",1);
+        List<Product> products = List.of(product1, product2);
+        productRepository.saveAll(products);
+        Page<Product> page = new PageImpl<>(products);
+        when(productRepository.findAll(PageRequest.of(0, 10))).thenReturn((page));// stub
+
+
+        //When
+        ProductDTO[] result = productService.getAllProducts(PageRequest.of(0, 10));
+
+        //Then
+        verify(productRepository).findAll(PageRequest.of(0, 10)); //mock
+
+        assertEquals(2, result.length);
+        assertEquals("product1", result[0].name());
     }
 
     @Test

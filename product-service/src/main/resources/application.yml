@@ -4,7 +4,6 @@ spring:
   profiles:
     active: default
   config:
-    import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8045} # Added Optional for testing purpose
-                                                                                  # if you want it to fail fast remove optional but tests will fail
+    import: configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8045} # Removed optional for fail fast scenario
 
 
