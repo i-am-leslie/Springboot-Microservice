@@ -46,7 +46,7 @@ public class ProductController {
 
     @DeleteMapping(value = "/delete/{productName}")  // refractoring  to use id because name is not reliable
     public ResponseEntity<?> deleteProduct(@PathVariable("productName")String productId){
-        if(productService.deleteProduct(productId)) return  ResponseEntity.status(HttpStatus.OK).build();
+        if(productService.deleteProduct(productId)) return  ResponseEntity.ok("Product deleted successfully");
         return ResponseEntity.notFound().build();
     }
 

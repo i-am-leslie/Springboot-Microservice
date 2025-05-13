@@ -19,8 +19,7 @@ import org.springframework.messaging.Message;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,7 +71,42 @@ class ProductServiceTest {
 
     @Test
     void deleteProduct() {
+        //Given
+        String id="123";
+        Product product1= new Product("123","Fan","Test product","1",1);
+        productRepository.save(product1);
+        when(productRepository.deleteProductById(id)).thenReturn(1);
 
+        //When
+        boolean result=productService.deleteProduct(id);
+
+
+        //Then
+        verify(productRepository).deleteProductById(id);
+        assertTrue(result);
+        ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
+        Message<ProductEvent> sentMessage = productEventCaptor.getValue();
+        ProductEvent event = sentMessage.getPayload();
+        assertEquals("DELETED", event.getAction());
+        assertEquals("123", event.getPrimaryId());
+    }
+
+    @Test
+    void deleteNoProduct() {
+        //Given
+        String id="1234";
+        Product product1= new Product("123","Fan","Test product","1",1);
+        productRepository.save(product1);
+        when(productRepository.deleteProductById(id)).thenReturn(0);
+
+        //When
+        boolean result=productService.deleteProduct(id);
+
+
+        //Then
+        verify(productRepository).deleteProductById(id);
+        assertFalse(result);
     }
 
     @Test

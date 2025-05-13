@@ -85,20 +85,14 @@ public class ProductService {
     /**
      * Deletes the product from the database
      * @author Leslie
-     * @param productName
+     * @param productId
      *
      */
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackDeleteMethod")
-    public boolean deleteProduct(String productName){
-        String productId =  productRepository.findIdByName(productName);
-        if(productId!=null){
-            productRepository.deleteFirstByName(productName);
-            sendToOrderService("DELETED", productId);
-            logger.info("Product deleted");
-            return true;
-        }
-        logger.info("Product Not found in database please check the name");
-        return false;
+    public boolean deleteProduct(String productId){
+        int rowsAffected=productRepository.deleteProductById(productId);
+        if(rowsAffected > 0) sendToOrderService("DELETED", productId);
+        return rowsAffected > 0;
     }
 
     /**

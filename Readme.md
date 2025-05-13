@@ -177,6 +177,6 @@ productId (string) – ID of the product being ordered
 🛠 Tech Stack\
 RESTful API\
 Pageable for pagination\
-Status management using DTOs\
+Status management using DTOs
 
 
