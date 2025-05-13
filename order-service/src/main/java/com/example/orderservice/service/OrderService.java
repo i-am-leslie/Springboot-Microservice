@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
@@ -24,12 +25,17 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
 
-    @Autowired
-    private ProductRestTemplateClient redisCache; // for caching products to reduce queries for database
+    private final OrderRepository orderRepository;
 
+
+    private final ProductRestTemplateClient redisCache; // for caching products to reduce queries for database
+
+
+    public OrderService(OrderRepository orderRepository,ProductRestTemplateClient redisCache){
+        this.orderRepository=orderRepository;
+        this.redisCache=redisCache;
+    }
 
 
 //    When an order is created it must have a id  or ids
@@ -106,8 +112,8 @@ public class OrderService {
     @Retry(name = "retryOrderService", fallbackMethod= "getOrdersFallback")
     @RateLimiter(name = "order-service",
             fallbackMethod = "getOrdersFallback")
-    public Iterable <Orders> getOrders() throws TimeoutException{
-        return orderRepository.findAll();// memory inefficient for large data sets use pageable
+    public List<Orders> getOrders(Pageable page) throws TimeoutException{
+        return orderRepository.findAll(page).getContent();// memory inefficient for large data sets use pageable
     }
 
     /**
@@ -127,7 +133,7 @@ public class OrderService {
         return false;
     }
 
-    private Iterable<Orders> getOrdersFallback(Throwable t){
+    private List<Orders>  getOrdersFallback(Throwable t){
         System.out.println("Fallback for getting orders triggered ");
         return new ArrayList<>(); // Return the empty list
     }

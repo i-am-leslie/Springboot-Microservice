@@ -6,9 +6,12 @@ import com.example.orderservice.service.OrderService;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
@@ -31,8 +34,10 @@ public class OrderController {
     }
 
     @GetMapping(value = "/all")
-    public ResponseEntity<Iterable<Orders>> getAllOrders() throws TimeoutException {
-        return  ResponseEntity.ok(orderService.getOrders());
+    public ResponseEntity<List<Orders>> getAllOrders(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                     @RequestParam(name = "size", defaultValue = "10") int size) throws TimeoutException {
+        Pageable pageable = PageRequest.of(page, size);
+        return  ResponseEntity.ok(orderService.getOrders(pageable));
     }
 
     @DeleteMapping(value = "/delete/{orderId}")
