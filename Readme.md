@@ -87,19 +87,96 @@ Important endpoints
 * http://localhost:8761 - Eureka Dashboard(Service Discovery)
 * http://zipkin:9411/api/v2/spans - zipkin(Distributed tracing)
 
-### Example API endpoints for integration testing of all services in postman 
-* http://localhost:8080/product-service/v1/product/create 
- add a json body for example  
-{
-  "productId": "12345",
-  "name": "Dog",
+## Product Service API Documentation
+
+🌐 Base Url\
+http://localhost:8080/api/v1/product-service
+
+### Endpoints 
+
+🟢 GET  /get/{productName}
+
+* Description: Get a product by name. Supports fuzzy search to handle user input variations.
+* Path Parameter:
+  productName (string) – required
+
+🟢 GET /getId/{id}
+* Description: Checks if a product exists by its ID.
+* Path Parameter:
+  id (string) – required
+
+🟢 GET /getAll?page=0&size=10 
+* Description: Retrieve all products with pagination support.
+* Query Parameters:
+  page (default: 0)
+  size (default: 10)
+
+🔵 POST /create
+* Description: Creates a new product.
+* Request Body:\
+  {\
+  "productId": "12345", \
+  "name": "Dog",\
   "productDescription": "Description of the product",
-  "quantityInStock": "50",
-  "price": 100
+  "quantityInStock": "50",\
+  "price": 100\
+  }\
+\
+  🛠 Technologies Used\
+  Java + Spring Boot\
+  REST API\
+  DTO'S to encapsulate data\
+  Spring Validation\
+  Pageable for pagination\
+  Fuzzy search logic for product lookup
+
+
+## Order Service API Documentation
+
+🌐 Base Url\
+http://localhost:8080/api/v1/Order-service
+
+### Endpoints 
+
+🔵 POST /create/{productId}
+
+* Description: Creates a new order associated with a product.
+* Path Parameter:
+productId (string) – ID of the product being ordered
+* Request Body:\
+  {\
+  "orderId": "a1b2c3",\
+  "products": {
+  },\
+  "status": "PENDING",\
   }
-* http://localhost:8080/product-service/v1/product/getProduct/Dog - Gets the product added as long as the name is there it also uses fuzzy search in case of user error
-* http://localhost:8080/order-service/v1/Orders/create/{Prouuctid} - Use the product id from the previous url 
-* http://localhost:8080/product-service/v1/product/getAllProducts - Gets all products
-* http://localhost:8080/order-service/v1/Orders/orders - Gets all orders 
-* http://localhost:8080/product-service/v1/product/delete/{productName}- deletes a product 
- 
+
+🟢 GET /all?page=0&size=10
+* Description: Retrieves all orders with pagination.
+* Query Parameters:
+  page (int, default: 0)
+  size (int, default: 10)
+
+🔴 DELETE /delete/{orderId}
+* Description: Deletes an order by its ID.
+* Path Parameter:
+  orderId (string) – required
+* Response:
+  "Deleted Product"
+
+🟡 POST /change/status
+* Description: Updates the status of an existing order.
+* Request Body: (StatusChange DTO)\
+  {\
+  "orderId": "a1b2c3",\
+  "newStatus": "SHIPPED"\
+  }\
+* Response:
+  "Changed order status"
+
+🛠 Tech Stack\
+RESTful API\
+Pageable for pagination\
+Status management using DTOs\
+
+
