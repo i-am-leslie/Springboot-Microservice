@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -84,9 +85,18 @@ public class ProductService {
      */
     @CircuitBreaker(name="product service", fallbackMethod = "fallbackDeleteMethod")
     public boolean deleteProduct(String productId){
-        int rowsAffected=productRepository.deleteProductById(productId);
-        if(rowsAffected > 0) sendToOrderService("DELETED", productId);
-        return rowsAffected > 0;
+        Optional<Product> productDeleted= productRepository.findById(productId);
+        if(productDeleted.isPresent()){
+            productRepository.deleteById(productId);
+            ProductRequestDTO productDTO=productDeleted.map(Product->{ return new ProductRequestDTO(
+                    Product.getName(),
+                    Product.getProductDescription(),
+                    Product.getQuantityInStock(),
+                    Product.getPrice());}).get();
+            sendToOrderService("DELETED", productId, productDTO);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -103,7 +113,9 @@ public class ProductService {
                 .quantityInStock(productDTO.quantityInStock())
                 .build(); // Build the product
         productRepository.save(product);
-        sendToOrderService("CREATED", product.getProductId());
+
+
+        sendToOrderService("CREATED", product.getProductId(), productDTO);
         log.info("created product {}",product.getName());
     }
 
@@ -116,9 +128,9 @@ public class ProductService {
      */
     @CircuitBreaker(name="product-service", fallbackMethod = "fallbackSendToOrderService")
     @Bulkhead(name="productServiceThreadPool", type = Bulkhead.Type.THREADPOOL)
-    public void sendToOrderService(String action, String productId){
+    public void sendToOrderService(String action, String productId, ProductRequestDTO productDTO){
         ProductEvent productEvent;
-        productEvent= ProductEvent.builder().action(action).primaryId(productId).build();
+        productEvent= ProductEvent.builder().action(action).primaryId(productId).productRequestDTO(productDTO).build();
         streamBridge.setAsync(true);
         streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
     }

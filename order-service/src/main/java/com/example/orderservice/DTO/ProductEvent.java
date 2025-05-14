@@ -1,12 +1,12 @@
 package com.example.orderservice.DTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ProductEvent {
     @JsonProperty("action")
@@ -14,31 +14,17 @@ public class ProductEvent {
     @JsonProperty("primaryId")
     private String primaryId;
 
+    @JsonProperty("productRequestDTO")
+    private ProductRequestDTO productRequestDTO;
+
     @JsonProperty("correlationId")
     private String correlationId;
 
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getPrimaryId() {
-        return primaryId;
-    }
-
-    public void setPrimaryId(String primaryId) {
-        this.primaryId = primaryId;
-    }
-
-    public String getCorrelationId() {
-        return correlationId;
-    }
-
-    public void setCorrelationId(String correlationId) {
-        this.correlationId = correlationId;
+    @Override
+    public String toString() {
+        StringBuilder productEventString= new StringBuilder();
+        productEventString.append(action).append(" ").append(primaryId).append(" ").append(productRequestDTO).append(" ").append(correlationId);
+        return productEventString.toString();
     }
 
 

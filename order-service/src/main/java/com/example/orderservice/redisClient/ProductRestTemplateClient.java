@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -97,6 +98,7 @@ public class ProductRestTemplateClient {
             ProductEvent productEvent;
             try {
                 productEvent =objectMapper.readValue(message, ProductEvent.class );
+                System.out.println("Converted string to productEvent"+" "+productEvent.toString());
             } catch (JsonProcessingException e) {
                 System.err.println("Error parsing message: " + e.getMessage());
                 throw new RuntimeException(e);
@@ -117,22 +119,22 @@ public class ProductRestTemplateClient {
         return ProductEvent -> {
             if (events == null) {
                 events = new HashMap<>();
-                events.put("DELETED", productId -> {
-                    orderRedisRepository.deleteById(productId);
-                    System.out.println("Deleted product " + productId);
+                events.put("DELETED", productEvent -> {
+                    orderRedisRepository.deleteById(productEvent.getPrimaryId());
+                    System.out.println("Deleted product " + productEvent.getPrimaryId());
                 });
 
-                events.put("CREATED", productId -> {
+                events.put("CREATED", productEvent -> {
                     System.out.println("Saving to redis");
-                    Product product = new Product();
-                    product.setProductId(productId);
+                    Product product = Product.builder().productId(productEvent.getPrimaryId()).name(productEvent.getProductRequestDTO().name()).
+                            price(productEvent.getProductRequestDTO().price()).action(productEvent.getAction()).build();
                     cacheProductObject(product);
                 });
             }
 
-            Consumer<String> operation=events.get(ProductEvent.getAction());
+            Consumer<ProductEvent> operation=events.get(ProductEvent.getAction());
             if(operation!=null){
-                operation.accept(ProductEvent.getPrimaryId());
+                operation.accept(ProductEvent);
             }else{
                 throw new UnsupportedOperationException("Invalid operation");
             }

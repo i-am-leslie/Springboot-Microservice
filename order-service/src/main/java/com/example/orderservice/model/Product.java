@@ -28,11 +28,4 @@ public class Product extends RepresentationModel<Product> {
     Integer price;
     String action;
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
 }

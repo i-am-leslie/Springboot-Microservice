@@ -1,5 +1,7 @@
 package com.example.orderservice.service;
 
+import com.example.orderservice.DTO.OrderDTO;
+import com.example.orderservice.DTO.ProductRequestDTO;
 import com.example.orderservice.DTO.StatusChange;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.model.OrderStatus;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -113,7 +116,7 @@ public class OrderService {
     @RateLimiter(name = "order-service",
             fallbackMethod = "getOrdersFallback")
     public List<Orders> getOrders(Pageable page) throws TimeoutException{
-        return orderRepository.findAll(page).getContent();// memory inefficient for large data sets use pageable
+        return orderRepository.findAll(page).getContent();
     }
 
     /**
@@ -124,7 +127,7 @@ public class OrderService {
      * @return order
      */
     private boolean failedOrder(Optional<Orders> order, String productId,Throwable t){
-        HashSet<String> fallbackSet=new HashSet<>(); // receives an invalid data
+        List<String> fallbackSet=new ArrayList<>(); // receives an invalid data
         Orders failedOrder=new Orders();
         failedOrder.setOrderId("0000000-00-00000");
         failedOrder.setProductsId(fallbackSet);
