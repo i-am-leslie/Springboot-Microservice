@@ -5,7 +5,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +31,7 @@ class ProductRepositoryTest {
         //when
         String productId= productRepository.findIdByName("Fan");
         //then
-        assertEquals(productId,"12345");
+        assertEquals("12345", productId);
     }
 
     @Test
@@ -44,5 +43,33 @@ class ProductRepositoryTest {
         String result = productRepository.findIdByName("bag");
         //Then
         assertNull(result);
+    }
+
+    @Test
+    void deleteProductById() {
+        //Given
+        Product sampleProduct= new Product("12345","Fan","Sample product","10",10);
+        productRepository.save(sampleProduct);
+
+
+        //When
+        int result= productRepository.deleteProductById("12345");
+
+        //Then
+        assertEquals(1, result);
+    }
+
+    @Test
+    void deleteProductByIdNotExist() {
+        //Given
+        Product sampleProduct= new Product("12345","Fan","Sample product","10",10);
+        productRepository.save(sampleProduct);
+
+
+        //When
+        int result= productRepository.deleteProductById("1234");
+
+        //Then
+        assertEquals(0, result);
     }
 }

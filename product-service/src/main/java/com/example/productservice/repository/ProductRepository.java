@@ -18,5 +18,4 @@ public interface ProductRepository extends JpaRepository<Product,String> {
      @Query("DELETE FROM Product  WHERE productId= :productId")
      int deleteProductById(String productId);
 
-
 }
