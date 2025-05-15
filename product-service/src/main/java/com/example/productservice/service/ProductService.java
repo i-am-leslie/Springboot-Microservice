@@ -90,12 +90,7 @@ public class ProductService {
         Optional<Product> productDeleted= productRepository.findById(productId);
         if(productDeleted.isPresent()){
             productRepository.deleteById(productId);
-            ProductRequestDTO productDTO=productDeleted.map(Product->{ return new ProductRequestDTO(
-                    Product.getName(),
-                    Product.getProductDescription(),
-                    Product.getQuantityInStock(),
-                    Product.getPrice());}).get();
-            sendToOrderService("DELETED", productId, productDTO);
+            sendToOrderService("DELETED", productId);
             return true;
         }
         return false;
@@ -117,7 +112,7 @@ public class ProductService {
         productRepository.save(product);
 
 
-        sendToOrderService("CREATED", product.getProductId(), productDTO);
+        sendToOrderService("CREATED", product.getProductId());
         log.info("created product {}",product.getName());
     }
 
@@ -130,9 +125,9 @@ public class ProductService {
      */
     @CircuitBreaker(name="product-service", fallbackMethod = "fallbackSendToOrderService")
     @Bulkhead(name="productServiceThreadPool", type = Bulkhead.Type.THREADPOOL)
-    public void sendToOrderService(String action, String productId, ProductRequestDTO productDTO){
+    public void sendToOrderService(String action, String productId){
         ProductEvent productEvent;
-        productEvent= ProductEvent.builder().action(action).primaryId(productId).productRequestDTO(productDTO).build();
+        productEvent= ProductEvent.builder().action(action).primaryId(productId).build();
         streamBridge.setAsync(true);
         streamBridge.send(BINDING_NAME, MessageBuilder.withPayload(productEvent).build());
     }

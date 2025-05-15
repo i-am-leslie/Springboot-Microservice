@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.Message;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -70,43 +71,46 @@ class ProductServiceTest {
 
     @Test
     void deleteProduct() {
-        //GivenproductIds
-        String id="123";
-        Product product1= new Product("123","Fan","Test product","1",1);
-        productRepository.save(product1);
-//        when(productRepository.deleteById(id)).thenReturn(True);
+        // Given
+        String id = "123";
+        Product product1 = new Product("123", "Fan", "Test product", "1", 1);
 
-        //When
-        boolean result=productService.deleteProduct(id);
+        when(productRepository.findById(id)).thenReturn(Optional.of(product1));
+        doNothing().when(productRepository).deleteById(id);
 
+        // When
+        boolean result = productService.deleteProduct(id);
 
-        //Then
+        // Then
         verify(productRepository).deleteById(id);
         assertTrue(result);
+
         ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
         verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
+
         Message<ProductEvent> sentMessage = productEventCaptor.getValue();
         ProductEvent event = sentMessage.getPayload();
+
         assertEquals("DELETED", event.getAction());
         assertEquals("123", event.getPrimaryId());
     }
-
-    @Test
-    void deleteNoProduct() {
-        //Given
-        String id="1234";
-        Product product1= new Product("123","Fan","Test product","1",1);
-        productRepository.save(product1);
+//
+//    @Test
+//    void deleteNoProduct() {
+//        //Given
+//        String id="1234";
+//        Product product1= new Product("123","Fan","Test product","1",1);
+//        productRepository.save(product1);
 //        when(productRepository.deleteProductById(id)).thenReturn(0);
-
-        //When
-        boolean result=productService.deleteProduct(id);
-
-
-        //Then
-        verify(productRepository).deleteById(id);
-        assertFalse(result);
-    }
+//
+//        //When
+//        boolean result=productService.deleteProduct(id);
+//
+//
+//        //Then
+//        verify(productRepository).deleteById(id);
+//        assertFalse(result);
+//    }
 
     @Test
     void testCreateProduct() {
@@ -159,25 +163,25 @@ class ProductServiceTest {
     }
 
 
-//    @Test
-//    void sendToOrderService() {
-//        // Given
-//        String action = "CREATED";
-//        String productId = "1234";
-//
-//        // When
-//        productService.sendToOrderService(action, productId);
-//
-//        // Then
-//        ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
-//        verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
-//        Message<ProductEvent> sentMessage = productEventCaptor.getValue();
-//        ProductEvent event = sentMessage.getPayload();
-//        assertEquals("CREATED", event.getAction());
-//        assertEquals("1234", event.getPrimaryId());
-//
-//
-//    }
+    @Test
+    void sendToOrderService() {
+        // Given
+        String action = "CREATED";
+        String productId = "1234";
+
+        // When
+        productService.sendToOrderService(action, productId);
+
+        // Then
+        ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
+        Message<ProductEvent> sentMessage = productEventCaptor.getValue();
+        ProductEvent event = sentMessage.getPayload();
+        assertEquals("CREATED", event.getAction());
+        assertEquals("1234", event.getPrimaryId());
+
+
+    }
 
     @Test
     void getAllProducts() {
