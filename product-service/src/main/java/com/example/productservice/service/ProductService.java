@@ -2,6 +2,7 @@ package com.example.productservice.service;
 
 
 import com.example.productservice.DTO.ProductDTO;
+import com.example.productservice.DTO.ProductDetails;
 import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.DTO.ProductEvent;
 import com.example.productservice.model.Product;
@@ -14,6 +15,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import com.example.productservice.repository.ProductRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -170,6 +172,16 @@ public class ProductService {
      */
     public boolean getProductById(String id){
         return productRepository.existsById(id);
+    }
+
+    public List<ProductDetails> getProductDetails(List<String> productIds){
+        Iterable<Product> products= productRepository.findAllById(productIds);
+        List<ProductDetails> productDetails= new ArrayList<>();
+        for(Product product:products){
+            ProductDetails pDetail=new ProductDetails(product.getProductId(),product.getName(),product.getPrice());
+            productDetails.add(pDetail);
+        }
+        return productDetails;
     }
 
 

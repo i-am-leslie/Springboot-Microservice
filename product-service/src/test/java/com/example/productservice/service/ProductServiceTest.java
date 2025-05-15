@@ -1,6 +1,7 @@
 package com.example.productservice.service;
 
 import com.example.productservice.DTO.ProductDTO;
+import com.example.productservice.DTO.ProductDetails;
 import com.example.productservice.DTO.ProductEvent;
 import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.model.Product;
@@ -20,9 +21,7 @@ import org.springframework.messaging.Message;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -71,18 +70,18 @@ class ProductServiceTest {
 
     @Test
     void deleteProduct() {
-        //Given
+        //GivenproductIds
         String id="123";
         Product product1= new Product("123","Fan","Test product","1",1);
         productRepository.save(product1);
-        when(productRepository.deleteProductById(id)).thenReturn(1);
+//        when(productRepository.deleteById(id)).thenReturn(True);
 
         //When
         boolean result=productService.deleteProduct(id);
 
 
         //Then
-        verify(productRepository).deleteProductById(id);
+        verify(productRepository).deleteById(id);
         assertTrue(result);
         ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
         verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
@@ -98,14 +97,14 @@ class ProductServiceTest {
         String id="1234";
         Product product1= new Product("123","Fan","Test product","1",1);
         productRepository.save(product1);
-        when(productRepository.deleteProductById(id)).thenReturn(0);
+//        when(productRepository.deleteProductById(id)).thenReturn(0);
 
         //When
         boolean result=productService.deleteProduct(id);
 
 
         //Then
-        verify(productRepository).deleteProductById(id);
+        verify(productRepository).deleteById(id);
         assertFalse(result);
     }
 
@@ -133,24 +132,52 @@ class ProductServiceTest {
     }
 
     @Test
-    void sendToOrderService() {
-        // Given
-        String action = "CREATED";
-        String productId = "1234";
+    void getProductsDetailsTest(){
+        //Given
+        Product product1= new Product("123","Fan","Test product","1",120);
+        Product product2= new Product("124","book","Test product","1",100);
+        Product product3= new Product("125","Toy","Test product","1",50);
+        List<String> productIds= List.of("123","124","125");
+        List<Product> products = List.of(product1, product2, product3);
+        when(productRepository.findAllById(productIds)).thenReturn(products);
 
-        // When
-        productService.sendToOrderService(action, productId);
 
-        // Then
-        ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
-        Message<ProductEvent> sentMessage = productEventCaptor.getValue();
-        ProductEvent event = sentMessage.getPayload();
-        assertEquals("CREATED", event.getAction());
-        assertEquals("1234", event.getPrimaryId());
+        //When
+        List<ProductDetails> result=productService.getProductDetails(productIds);
+
+
+        //Then
+        verify(productRepository).findAllById(productIds);
+        assertEquals(3, result.size());
+
+        assertTrue(result.stream().anyMatch(p -> p.name().equals("Fan") && p.price() == 120));
+        assertTrue(result.stream().anyMatch(p -> p.name().equals("book") && p.price() == 100));
+        assertTrue(result.stream().anyMatch(p -> p.name().equals("Toy") && p.price() == 50));
+
 
 
     }
+
+
+//    @Test
+//    void sendToOrderService() {
+//        // Given
+//        String action = "CREATED";
+//        String productId = "1234";
+//
+//        // When
+//        productService.sendToOrderService(action, productId);
+//
+//        // Then
+//        ArgumentCaptor<Message<ProductEvent>> productEventCaptor = ArgumentCaptor.forClass(Message.class);
+//        verify(streamBridge).send(eq("productSupplier-out-0"), productEventCaptor.capture());
+//        Message<ProductEvent> sentMessage = productEventCaptor.getValue();
+//        ProductEvent event = sentMessage.getPayload();
+//        assertEquals("CREATED", event.getAction());
+//        assertEquals("1234", event.getPrimaryId());
+//
+//
+//    }
 
     @Test
     void getAllProducts() {

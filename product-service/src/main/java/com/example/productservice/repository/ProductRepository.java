@@ -13,9 +13,9 @@ public interface ProductRepository extends JpaRepository<Product,String> {
      @Query("SELECT p.productId FROM Product p WHERE p.name = :productName")
      String findIdByName(String productName);
 
-     @Modifying
-     @Transactional
-     @Query("DELETE FROM Product  WHERE productId= :productId")
-     int deleteProductById(String productId);
+//     @Modifying
+//     @Transactional
+//     @Query("DELETE FROM Product  WHERE productId= :productId")
+//     int deleteProductById(String productId);
 
 }

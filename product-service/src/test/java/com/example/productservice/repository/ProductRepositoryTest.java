@@ -45,31 +45,31 @@ class ProductRepositoryTest {
         assertNull(result);
     }
 
-    @Test
-    void deleteProductById() {
-        //Given
-        Product sampleProduct= new Product("12345","Fan","Sample product","10",10);
-        productRepository.save(sampleProduct);
-
-
-        //When
-        int result= productRepository.deleteProductById("12345");
-
-        //Then
-        assertEquals(1, result);
-    }
-
-    @Test
-    void deleteProductByIdNotExist() {
-        //Given
-        Product sampleProduct= new Product("12345","Fan","Sample product","10",10);
-        productRepository.save(sampleProduct);
-
-
-        //When
-        int result= productRepository.deleteProductById("1234");
-
-        //Then
-        assertEquals(0, result);
-    }
+//    @Test
+//    void deleteProductById() {
+//        //Given
+//        Product sampleProduct= new Product("12345","Fan","Sample product","10",10);
+//        productRepository.save(sampleProduct);
+//
+//
+//        //When
+//        int result= productRepository.deleteProductById("12345");
+//
+//        //Then
+//        assertEquals(1, result);
+//    }
+//
+//    @Test
+//    void deleteProductByIdNotExist() {
+//        //Given
+//        Product sampleProduct= new Product("12345","Fan","Sample product","10",10);
+//        productRepository.save(sampleProduct);
+//
+//
+//        //When
+//        int result= productRepository.deleteProductById("1234");
+//
+//        //Then
+//        assertEquals(0, result);
+//    }
 }

@@ -1,5 +1,6 @@
 package com.example.productservice.Controller;
 
+import com.example.productservice.DTO.ProductDetails;
 import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
@@ -10,6 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
+
 @RestController
 @RequestMapping(value="api/v1/products")
 @Slf4j
@@ -43,6 +47,12 @@ public class ProductController {
         productService.createProduct(product);
         return ResponseEntity.ok("Product created");
     }
+
+    @PostMapping(value= "/getProductDetails")
+    public ResponseEntity<List<ProductDetails>> getProductDetails(@RequestBody List<String> ids){
+        return ResponseEntity.ok(productService.getProductDetails(ids));
+    }
+
 
     @DeleteMapping(value = "/delete/{productName}")  // refractoring  to use id because name is not reliable
     public ResponseEntity<?> deleteProduct(@PathVariable("productName")String productId){
