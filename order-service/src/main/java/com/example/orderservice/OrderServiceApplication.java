@@ -41,12 +41,6 @@ public class OrderServiceApplication {
 	public RedisTemplate<String, Object> redisTemplate() {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
 		template.setConnectionFactory(jedisConnectionFactory());
-
-		// Set key serializer to String
-		template.setKeySerializer(new StringRedisSerializer());
-
-		// Set value serializer to JSON so objects like Product are stored properly
-		template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 		return template;
 	}
 

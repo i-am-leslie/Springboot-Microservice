@@ -18,6 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -57,7 +58,6 @@ public class ProductRestTemplateClient {
             System.out.println("Could not save product:" +product.getProductId() +" "+ex.getMessage()+": in redis redis");
         }
     }
-
 
     public Product getProduct(String productId){  // Needs fixing
         Optional<Product> product = CheckRedisCache(productId);
@@ -117,17 +117,19 @@ public class ProductRestTemplateClient {
     @Bean
     public Consumer<ProductEvent> productConsumer() {
         return ProductEvent -> {
+
             if (events == null) {
                 events = new HashMap<>();
+                //Deleted
                 events.put("DELETED", productEvent -> {
                     orderRedisRepository.deleteById(productEvent.getPrimaryId());
                     System.out.println("Deleted product " + productEvent.getPrimaryId());
                 });
 
+                //Create
                 events.put("CREATED", productEvent -> {
                     System.out.println("Saving to redis");
-                    Product product = Product.builder().productId(productEvent.getPrimaryId()).name(productEvent.getProductRequestDTO().name()).
-                            price(productEvent.getProductRequestDTO().price()).action(productEvent.getAction()).build();
+                    Product product = Product.builder().productId(productEvent.getPrimaryId()).expiration(120L).build();
                     cacheProductObject(product);
                 });
             }

@@ -14,8 +14,6 @@ public class ProductEvent {
     @JsonProperty("primaryId")
     private String primaryId;
 
-    @JsonProperty("productRequestDTO")
-    private ProductRequestDTO productRequestDTO;
 
     @JsonProperty("correlationId")
     private String correlationId;
@@ -23,7 +21,7 @@ public class ProductEvent {
     @Override
     public String toString() {
         StringBuilder productEventString= new StringBuilder();
-        productEventString.append(action).append(" ").append(primaryId).append(" ").append(productRequestDTO).append(" ").append(correlationId);
+        productEventString.append(action).append(" ").append(primaryId).append(" ").append(" ").append(correlationId);
         return productEventString.toString();
     }
 

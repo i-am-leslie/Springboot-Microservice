@@ -1,8 +1,9 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.DTO.OrderDTO;
-import com.example.orderservice.DTO.ProductRequestDTO;
+import com.example.orderservice.DTO.ProductDetails;
 import com.example.orderservice.DTO.StatusChange;
+import com.example.orderservice.feign.FeignClient;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.model.OrderStatus;
 import com.example.orderservice.model.Product;
@@ -13,8 +14,6 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
@@ -31,13 +30,16 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
+    FeignClient feignClient;
+
 
     private final ProductRestTemplateClient redisCache; // for caching products to reduce queries for database
 
 
-    public OrderService(OrderRepository orderRepository,ProductRestTemplateClient redisCache){
+    public OrderService(OrderRepository orderRepository,ProductRestTemplateClient redisCache,FeignClient feignClient){
         this.orderRepository=orderRepository;
         this.redisCache=redisCache;
+        this.feignClient=feignClient;
     }
 
 
@@ -115,8 +117,44 @@ public class OrderService {
     @Retry(name = "retryOrderService", fallbackMethod= "getOrdersFallback")
     @RateLimiter(name = "order-service",
             fallbackMethod = "getOrdersFallback")
-    public List<Orders> getOrders(Pageable page) throws TimeoutException{
-        return orderRepository.findAll(page).getContent();
+    public List<OrderDTO> getOrders(Pageable page) throws TimeoutException{
+        try {
+            List<Orders> orders = orderRepository.findAll(page).getContent();
+            Set<String> productIds = new HashSet<>();
+            for (Orders order : orders) {
+                productIds.addAll(order.getProductsId());
+            }
+
+            List<ProductDetails> productDetails = feignClient.getProductDetails(productIds.stream().toList());
+            Map<String, ProductDetails> productMap = productDetails.stream()
+                    .collect(Collectors.toMap(ProductDetails::id, p -> p));
+
+            List<OrderDTO> orderDTOS = new ArrayList<>();
+            for (Orders order : orders) {
+                List<ProductDetails> detailsForOrder = order.getProductsId().stream()
+                        .map(productMap::get)
+                        .filter(Objects::nonNull)
+                        .toList();
+
+                int totalPrice = detailsForOrder.stream()
+                        .mapToInt(ProductDetails::price)
+                        .sum();
+
+                OrderDTO orderDto = new OrderDTO(
+                        order.getOrderId(),
+                        detailsForOrder,
+                        totalPrice,
+                        order.getOrderStatus()
+                );
+                orderDTOS.add(orderDto);
+            }
+
+            return orderDTOS;
+        } catch (Exception e) {
+            log.error("Failed to fetch orders: {}", e.getMessage(), e);
+            // fallback: return empty list or propagate a custom exception
+            return Collections.emptyList(); // or throw new CustomException("Order retrieval failed", e);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.example.orderservice.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.hateoas.RepresentationModel;
 
 
@@ -24,6 +25,8 @@ public class Product extends RepresentationModel<Product> {
 
     @Id
     String productId;
+    @TimeToLive
+    private Long expiration;
     String name;
     Integer price;
     String action;

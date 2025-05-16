@@ -1,5 +1,6 @@
 package com.example.orderservice.controller;
 
+import com.example.orderservice.DTO.OrderDTO;
 import com.example.orderservice.DTO.StatusChange;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.service.OrderService;
@@ -34,8 +35,8 @@ public class OrderController {
     }
 
     @GetMapping(value = "/all")
-    public ResponseEntity<List<Orders>> getAllOrders(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                     @RequestParam(name = "size", defaultValue = "10") int size) throws TimeoutException {
+    public ResponseEntity<List<OrderDTO>> getAllOrders(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                       @RequestParam(name = "size", defaultValue = "10") int size) throws TimeoutException {
         Pageable pageable = PageRequest.of(page, size);
         return  ResponseEntity.ok(orderService.getOrders(pageable));
     }

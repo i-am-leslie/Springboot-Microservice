@@ -94,23 +94,23 @@ class ProductServiceTest {
         assertEquals("DELETED", event.getAction());
         assertEquals("123", event.getPrimaryId());
     }
-//
-//    @Test
-//    void deleteNoProduct() {
-//        //Given
-//        String id="1234";
-//        Product product1= new Product("123","Fan","Test product","1",1);
-//        productRepository.save(product1);
-//        when(productRepository.deleteProductById(id)).thenReturn(0);
-//
-//        //When
-//        boolean result=productService.deleteProduct(id);
-//
-//
-//        //Then
-//        verify(productRepository).deleteById(id);
-//        assertFalse(result);
-//    }
+
+    @Test
+    void deleteNoProduct() {
+        //Given
+        String id="1232";
+        Product product1= new Product("123","Fan","Test product","1",1);
+        productRepository.save(product1);
+        when(productRepository.findById(id)).thenReturn(Optional.empty());
+
+        //When
+        boolean result=productService.deleteProduct(id);
+
+
+        //Then
+        verify(productRepository, never()).deleteById(id);
+        assertFalse(result);
+    }
 
     @Test
     void testCreateProduct() {

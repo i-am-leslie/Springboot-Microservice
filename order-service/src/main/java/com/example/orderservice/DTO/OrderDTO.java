@@ -5,7 +5,7 @@ import com.example.orderservice.model.OrderStatus;
 import java.util.List;
 
 public record OrderDTO(String orderId,
-                       List<ProductRequestDTO> productRequestDTOList,
+                       List<ProductDetails> ProductDetails,
                        int totalPrice,
                        OrderStatus status
                        ) {
