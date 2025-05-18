@@ -143,13 +143,6 @@ http://localhost:8080/api/v1/Order-service
 * Description: Creates a new order associated with a product.
 * Path Parameter:
 productId (string) – ID of the product being ordered
-* Request Body:\
-  {\
-  "orderId": "a1b2c3",\
-  "products": {
-  },\
-  "status": "PENDING",\
-  }
 
 🟢 GET /all?page=0&size=10
 * Description: Retrieves all orders with pagination.

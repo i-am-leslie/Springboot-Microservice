@@ -27,7 +27,6 @@ public class ProductRestTemplateClient {
     @Lazy
     OrderRedisRepository orderRedisRepository;
 
-
     @Autowired
     FeignClient feignClient;
 

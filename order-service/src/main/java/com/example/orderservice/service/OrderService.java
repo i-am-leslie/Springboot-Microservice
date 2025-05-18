@@ -42,9 +42,6 @@ public class OrderService {
         this.feignClient=feignClient;
     }
 
-
-//    When an order is created it must have a id  or ids
-
     /**
      * Saves the given order with the associated product ID. If the product is not found in the Redis cache,
      * it retrieves the product from an external service and caches it. Then, it generates a unique order ID,

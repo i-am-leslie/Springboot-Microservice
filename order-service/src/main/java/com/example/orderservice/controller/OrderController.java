@@ -2,7 +2,6 @@ package com.example.orderservice.controller;
 
 import com.example.orderservice.DTO.OrderDTO;
 import com.example.orderservice.DTO.StatusChange;
-import com.example.orderservice.model.Orders;
 import com.example.orderservice.service.OrderService;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
@@ -44,14 +43,13 @@ public class OrderController {
 
     @DeleteMapping(value = "/delete/{orderId}")
     public ResponseEntity<String> deleteOrder(@PathVariable("orderId") String orderId ){
-        System.out.println("Removing order"+ " " + orderId);
         orderService.deleteOrder(orderId);
         return ResponseEntity.ok("Deleted Product");
     }
 
     @PostMapping(value="/change/status")
     public ResponseEntity<String> changeOrderStatus(@Valid @RequestBody StatusChange statusChange){
-        orderService.changeOrderStatus(statusChange);  // create a dto
+        orderService.changeOrderStatus(statusChange);
         return ResponseEntity.ok("Changed order status");
     }
 }
