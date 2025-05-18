@@ -23,7 +23,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping(value = "/create/{productId}")
-    public ResponseEntity<String> saveOrder(@PathVariable("productId") String productId, @RequestBody Optional<Orders> order) throws TimeoutException {
+    public ResponseEntity<String> saveOrder(@PathVariable("productId") String productId, @RequestBody Orders order) throws TimeoutException {
         if(orderService.saveOrder(order, productId)) return ResponseEntity.ok("New order created");
         return ResponseEntity.ok("Order creation failed");
     }

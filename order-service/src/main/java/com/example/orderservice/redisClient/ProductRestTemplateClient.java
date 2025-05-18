@@ -59,7 +59,7 @@ public class ProductRestTemplateClient {
         }
     }
 
-    public Product getProduct(String productId){  // Needs fixing
+    public Product getProduct(String productId){
         Optional<Product> product = CheckRedisCache(productId);
         if(product.isPresent()){
             System.out.println("i have successfully retrieved product id:" + product.map(Product::getProductId));

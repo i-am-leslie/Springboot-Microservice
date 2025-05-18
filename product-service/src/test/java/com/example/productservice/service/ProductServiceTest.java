@@ -56,7 +56,6 @@ class ProductServiceTest {
         //Given
         String productName="Fan";
         Product product1= new Product("123","Fan","Test product","1",1);
-        productRepository.save(product1);
 
 
         //When
@@ -100,7 +99,6 @@ class ProductServiceTest {
         //Given
         String id="1232";
         Product product1= new Product("123","Fan","Test product","1",1);
-        productRepository.save(product1);
         when(productRepository.findById(id)).thenReturn(Optional.empty());
 
         //When
@@ -189,7 +187,6 @@ class ProductServiceTest {
         Product product1= new Product("123","product1","Test product","1",1);
         Product product2= new Product("121","product2","Test product","1",1);
         List<Product> products = List.of(product1, product2);
-        productRepository.saveAll(products);
         Page<Product> page = new PageImpl<>(products);
         when(productRepository.findAll(PageRequest.of(0, 10))).thenReturn((page));// stub
 
@@ -208,7 +205,6 @@ class ProductServiceTest {
     void getProductById() {
         // Given
         String id = "123";
-        productRepository.save(new Product("123", "Fan", "Test", "10",10));
         when(productRepository.existsById(id)).thenReturn(true);
 
         //When

@@ -67,15 +67,15 @@ public class OrderService {
     @Retry(name = "retryOrderService", fallbackMethod= "failedOrder")
     @RateLimiter(name = "order-service",
             fallbackMethod = "failedOrder")
-    public boolean saveOrder(Optional<Orders> order, String productId) throws TimeoutException{  // add a response incase the product wasnt found
-        Product p=redisCache.getProduct(productId);
-        String id= p.getProductId();
-        if(order.isPresent() && !id.isEmpty()){
-            Orders newOrder= new Orders();
-            newOrder.setOrderId(UUID.randomUUID().toString());
-            newOrder.getProductsId().add(productId);
-            newOrder.setOrderStatus(OrderStatus.PENDING);
-            orderRepository.save(newOrder);
+    public boolean saveOrder(Orders order, String productId) throws TimeoutException{
+        Product product=redisCache.getProduct(productId);
+        if(order!=null && product!=null ){
+            order=Orders.builder().
+                    orderId(UUID.randomUUID().toString()).
+                    productsId(new ArrayList<>()).
+                    orderStatus(OrderStatus.PENDING).build();
+            order.getProductsId().add(product.getProductId());
+            orderRepository.save(order);
             return true;
         }
         return false;
@@ -87,11 +87,15 @@ public class OrderService {
      *
      * Worst case time complexity is O(Log n ) due to it using indexing for hte database
      */
-    public void deleteOrder(String orderId){  // need refractoring
+    public void deleteOrder(String orderId){
         orderRepository.deleteById(orderId);
-        System.out.println("Deleted order"+" "+orderId);
     }
 
+    /**
+     * No usage yet
+     * @param orderId
+     * @return
+     */
     public Optional<Orders> getOrderDetails(String orderId){
         return orderRepository.findById(orderId);
     }
@@ -107,7 +111,7 @@ public class OrderService {
     /**
      * Retrieves all orders from the order repository.
      *
-     * @return An iterable collection of all orders.
+     * @return A List  of all orders with the product name, price and total price  .
      * @throws TimeoutException If the operation takes longer than expected.
      * Time complexity: O(n) where 'n' is the number of orders in the database.
      * The `findAll()` method iterates through all records in the database to return the orders.
@@ -153,7 +157,7 @@ public class OrderService {
         } catch (Exception e) {
             log.error("Failed to fetch orders: {}", e.getMessage(), e);
             // fallback: return empty list or propagate a custom exception
-            return Collections.emptyList(); // or throw new CustomException("Order retrieval failed", e);
+            return Collections.emptyList();
         }
     }
 
