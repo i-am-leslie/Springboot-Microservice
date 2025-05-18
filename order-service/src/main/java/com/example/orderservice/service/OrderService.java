@@ -105,7 +105,6 @@ public class OrderService {
     public void changeOrderStatus(StatusChange statusChange){
         Orders order = orderRepository.findById(statusChange.orderId())
                 .orElseThrow(() -> new RuntimeException("Order not found in database"));
-
         order.setOrderStatus(statusChange.status());
         orderRepository.save(order);
     }

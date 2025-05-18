@@ -12,13 +12,10 @@ import org.springframework.context.annotation.Lazy;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,44 +35,58 @@ public class ProductRestTemplateClient {
 
     enum Action{DELETED, CREATED}
 
+    /**
+     *  This method attempts to retrieve the product with its id from redis.
+     * @param productId
+     * @return  an Optional containing the Product if found, or Optional.empty() if not found or an error occurs
+     *
+     * Time complexity This operation typically has O(1) time complexity for key-based Redis lookups
+     */
 
-
-    // O(log n)
-    private Optional<Product> CheckRedisCache(String productId){
+    private Optional<Product> checkRedisCache(String productId){
         try {
             return orderRedisRepository
                     .findById(productId);
         }catch (Exception ex){
-            System.out.println("Error encountered while trying to retrieve product Exception : "+ " "+ex.getMessage());
+            log.error(ex.getMessage());
             return  Optional.empty();
         }
     }
+
+    /**
+     * Caches the particular product to the  redis repository
+     * @param product
+     */
     private void cacheProductObject(Product product) {
         try {
             orderRedisRepository.save(product);
-            System.out.println("Saved product in redis");
+            log.info("Saved product in redis");
         }catch (Exception ex){
-            System.out.println("Could not save product:" +product.getProductId() +" "+ex.getMessage()+": in redis redis");
+            log.error(ex.getMessage());
         }
     }
 
+    /**
+     * This method attemots to retrieve the product from redis, if not found tries to retrieve from product service
+     * @param productId
+     * @return the product received from redis and it not found in redis and product service returns null
+     */
     public Product getProduct(String productId){
-        Optional<Product> product = CheckRedisCache(productId);
+        Optional<Product> product = checkRedisCache(productId);
         if(product.isPresent()){
-            System.out.println("i have successfully retrieved product id:" + product.map(Product::getProductId));
+            log.info("i have successfully retrieved product from redis with id:{}", product.get().getProductId());
             return product.get();
         }
-        System.out.println("Unable to find product in redis with id:" + " "+productId);
+        log.error("Unable to find product in redis with id:{}",productId);
         ResponseEntity<String> restTemplateId;
         Product storeProduct=new Product();
         try{
             restTemplateId= feignClient.getProductById(productId);
-            System.out.println("Got product from product service database "+ " "+restTemplateId.getBody());
+            log.info("Retrieved product from product service database {}",restTemplateId.getBody());
             storeProduct.setProductId(restTemplateId.getBody());
             cacheProductObject(storeProduct);
-
         }catch(feign.FeignException ex){
-            System.out.println("Could not find product in product service database"+ " "+ ex.getMessage());
+            log.error("Could not find product in product service database",ex);
             return null;
         }
         return storeProduct;
@@ -93,14 +104,13 @@ public class ProductRestTemplateClient {
     @Bean
     public Function<String, ProductEvent> productEvent() {
         return message -> {
-            System.out.println("Messaged passed through kafka, Heading to the consumer function for order service");
+            log.info(message);
             ObjectMapper objectMapper = new ObjectMapper();
             ProductEvent productEvent;
             try {
                 productEvent =objectMapper.readValue(message, ProductEvent.class );
-                System.out.println("Converted string to productEvent"+" "+productEvent.toString());
             } catch (JsonProcessingException e) {
-                System.err.println("Error parsing message: " + e.getMessage());
+                log.error("Error parsing message:{} " , e.getMessage());
                 throw new RuntimeException(e);
             }
             return productEvent;};
@@ -123,12 +133,12 @@ public class ProductRestTemplateClient {
                 //Deleted
                 events.put("DELETED", productEvent -> {
                     orderRedisRepository.deleteById(productEvent.getPrimaryId());
-                    System.out.println("Deleted product " + productEvent.getPrimaryId());
+                    log.info("Deleted product: {} ", productEvent.getPrimaryId());
                 });
 
                 //Create
                 events.put("CREATED", productEvent -> {
-                    System.out.println("Saving to redis");
+                    log.info("Created product: {}", productEvent.getPrimaryId());
                     Product product = Product.builder().productId(productEvent.getPrimaryId()).expiration(120L).build();
                     cacheProductObject(product);
                 });
