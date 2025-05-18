@@ -3,11 +3,13 @@ package com.example.orderservice.Configuration;
 
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
+@Slf4j
 public class ServiceConfig {
 
     @Value("${spring.data.redis.host}")
@@ -19,8 +21,7 @@ public class ServiceConfig {
 
     @PostConstruct
     public void init() {
-        System.out.println("Redis Host: " + redisHost);  // Log the values
-        System.out.println("Redis Port: " + redisPort);  // Log the values
+        log.info("Redis Host: {}, Redis Port: {}", redisHost, redisPort);
     }
     public String getRedisHost() {
         return redisHost;

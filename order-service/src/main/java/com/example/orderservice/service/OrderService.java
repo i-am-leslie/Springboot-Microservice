@@ -50,9 +50,8 @@ public class OrderService {
      * it retrieves the product from an external service and caches it. Then, it generates a unique order ID,
      * associates the product with the order, and saves it in the order repository.
      *
-     * @param order The order to be saved.
      * @param productId The product ID associated with the order.
-     * @return The saved order object.
+     * @return True or False
      * @throws TimeoutException If the operation takes longer than expected.
      *
      * Best case time complexity: O(1) when the product is found in the Redis cache, as Redis performs constant
@@ -67,17 +66,19 @@ public class OrderService {
     @Retry(name = "retryOrderService", fallbackMethod= "failedOrder")
     @RateLimiter(name = "order-service",
             fallbackMethod = "failedOrder")
-    public boolean saveOrder(Orders order, String productId) throws TimeoutException{
+    public boolean saveOrder(String productId) throws TimeoutException{
         Product product=redisCache.getProduct(productId);
-        if(order!=null && product!=null ){
-            order=Orders.builder().
+        if(product!=null ){
+            Orders order=Orders.builder().
                     orderId(UUID.randomUUID().toString()).
                     productsId(new ArrayList<>()).
                     orderStatus(OrderStatus.PENDING).build();
             order.getProductsId().add(product.getProductId());
             orderRepository.save(order);
+            log.info("Order saved");
             return true;
         }
+        log.error("Failed to create order");
         return false;
     }
 
@@ -89,6 +90,7 @@ public class OrderService {
      */
     public void deleteOrder(String orderId){
         orderRepository.deleteById(orderId);
+        log.info("Order deleted");
     }
 
     /**
@@ -163,12 +165,11 @@ public class OrderService {
 
     /**
      * Fall back method for resilience to return some data to the user in case an error occurs.
-     * @param order
      * @param productId
      * @param t
      * @return order
      */
-    private boolean failedOrder(Optional<Orders> order, String productId,Throwable t){
+    private boolean failedOrder(String productId,Throwable t){
         List<String> fallbackSet=new ArrayList<>(); // receives an invalid data
         Orders failedOrder=new Orders();
         failedOrder.setOrderId("0000000-00-00000");

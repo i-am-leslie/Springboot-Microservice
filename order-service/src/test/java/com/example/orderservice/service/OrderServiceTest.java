@@ -59,7 +59,7 @@ class OrderServiceTest {
         when(redisCache.getProduct(productId)).thenReturn(expectedProduct);
 
         // When
-        orderService.saveOrder(new Orders(), productId);
+        orderService.saveOrder(productId);
 
         // Then
         ArgumentCaptor<Orders> orderCaptor = ArgumentCaptor.forClass(Orders.class);
@@ -79,7 +79,7 @@ class OrderServiceTest {
         when(redisCache.getProduct(productId)).thenReturn(expectedProduct);
 
         // When
-        boolean result=orderService.saveOrder(null, "");
+        boolean result=orderService.saveOrder( "");
 
         // Then
        assertFalse(result);
@@ -92,7 +92,7 @@ class OrderServiceTest {
         when(redisCache.getProduct(productId)).thenReturn(expectedProduct);
 
         // When
-        boolean result=orderService.saveOrder(new Orders(), "");
+        boolean result=orderService.saveOrder( "");
 
         // Then
         assertFalse(result);
