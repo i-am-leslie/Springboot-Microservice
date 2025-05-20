@@ -1,7 +1,9 @@
 package com.example.productservice.Controller;
 
+import com.example.productservice.DTO.ProductDTO;
 import com.example.productservice.DTO.ProductDetails;
 import com.example.productservice.DTO.ProductRequestDTO;
+import com.example.productservice.model.Product;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping(value = "/get/{productName}")
-    public ResponseEntity<?> getProduct(@PathVariable("productName") String productName){
+    public ResponseEntity<Product> getProduct(@PathVariable("productName") String productName){
         return ResponseEntity.ok(productService.findProductByName(productName));
     }
 
@@ -34,15 +36,15 @@ public class ProductController {
     }
 
     @GetMapping(value = "/getAll")
-    public ResponseEntity<?>  allProducts(@RequestParam(name = "page", defaultValue = "0") int page,
-                                     @RequestParam(name = "size", defaultValue = "10") int size){
+    public ResponseEntity<ProductDTO[]>  allProducts(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                     @RequestParam(name = "size", defaultValue = "10") int size){
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
 
     @PostMapping(value = "/create")
-    public ResponseEntity<?> create(@Valid @RequestBody ProductRequestDTO product){
+    public ResponseEntity<String> create(@Valid @RequestBody ProductRequestDTO product){
         log.info("Saving product {}", product.name());
         productService.createProduct(product);
         return ResponseEntity.ok("Product created");
@@ -55,12 +57,12 @@ public class ProductController {
 
 
     @DeleteMapping(value = "/delete/{productName}")  // refractoring  to use id because name is not reliable
-    public ResponseEntity<?> deleteProduct(@PathVariable("productName")String productId){
+    public ResponseEntity<String> deleteProduct(@PathVariable("productName")String productId){
         if(productService.deleteProduct(productId)) return  ResponseEntity.ok("Product deleted successfully");
         return ResponseEntity.notFound().build();
     }
 
 
-    //Create api that filters basedx
+    //Create api that filters based on user
 
 }

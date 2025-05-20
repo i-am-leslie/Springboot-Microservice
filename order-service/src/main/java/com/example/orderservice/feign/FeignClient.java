@@ -14,7 +14,6 @@ import java.util.List;
 @org.springframework.cloud.openfeign.FeignClient(value = "PRODUCT-SERVICE")
 public interface FeignClient {
     @GetMapping(value = "/api/v1/products/getId/{id}")
-    @CircuitBreaker(name="order-service")
     ResponseEntity<String> getProductById(@PathVariable("id") String id);
 
     @PostMapping(value = "/api/v1/products/getProductDetails")

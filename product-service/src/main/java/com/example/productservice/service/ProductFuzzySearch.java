@@ -20,7 +20,7 @@ public class ProductFuzzySearch {
      *
      */
     private int levenshteinDistance(String str1, String str2){
-        int minimumDistance= 0;
+        int minimumDistance;
         int sizeString1= str1.length();
         int sizeString2= str2.length();
 

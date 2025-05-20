@@ -23,16 +23,22 @@ import java.util.function.Function;
 @Slf4j
 public class ProductRestTemplateClient {
 
-    @Autowired
     @Lazy
-    OrderRedisRepository orderRedisRepository;
+    private final OrderRedisRepository orderRedisRepository;
 
-    @Autowired
-    FeignClient feignClient;
 
-    private HashMap<String, EventAction> events;
+    private final FeignClient feignClient;
 
-    enum Action{DELETED, CREATED}
+    private  HashMap<String, EventAction> events;
+
+    private static final String CreateAction="CREATED";
+    private static final String DeleteAction="DELETED";
+
+
+    public  ProductRestTemplateClient(OrderRedisRepository orderRedisRepository,FeignClient feignClient) {
+        this.orderRedisRepository = orderRedisRepository;
+        this.feignClient = feignClient;
+    }
 
     /**
      *  This method attempts to retrieve the product with its id from redis.
@@ -130,13 +136,13 @@ public class ProductRestTemplateClient {
             if (events == null) {
                 events = new HashMap<>();
                 //Deleted
-                events.put("DELETED", productEvent -> {
+                events.put(DeleteAction, productEvent -> {
                     orderRedisRepository.deleteById(productEvent.getPrimaryId());
                     log.info("Deleted product: {} ", productEvent.getPrimaryId());
                 });
 
                 //Create
-                events.put("CREATED", productEvent -> {
+                events.put( CreateAction,productEvent -> {
                     log.info("Created product: {}", productEvent.getPrimaryId());
                     Product product = Product.builder().productId(productEvent.getPrimaryId()).expiration(120L).build();
                     cacheProductObject(product);
