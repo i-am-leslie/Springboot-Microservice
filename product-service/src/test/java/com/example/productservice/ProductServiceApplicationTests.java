@@ -3,6 +3,7 @@ package com.example.productservice;
 import com.example.productservice.DTO.ProductDTO;
 import com.example.productservice.model.Product;
 import com.example.productservice.repository.ProductRepository;
+import com.example.productservice.service.ProductFuzzySearch;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -35,10 +38,8 @@ class ProductServiceApplicationTests {
 	@BeforeEach
 	void setUp() {
 		// Add product to database before test
-		Product product = new Product("12345", "Fan", "Sample product", "10", 10);
-		Product product2 = new Product("1235", "Controller", "Sample product", "10", 10);
-		productRepository.save(product);
-		productRepository.save(product2);
+		productRepository.saveAll(List.of(new Product("12345", "Fan", "Sample product", "10", 10),
+					new Product("1235", "Controller", "Sample product", "10", 10)));
 	}
 
 	@Test
