@@ -18,7 +18,7 @@ import org.springframework.data.redis.core.RedisHash;
 @Builder
 @AllArgsConstructor
 @RedisHash("Product")
-public class Product extends RepresentationModel<Product> {
+public class Product {
 
 
 
