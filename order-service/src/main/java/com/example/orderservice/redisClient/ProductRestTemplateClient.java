@@ -144,7 +144,7 @@ public class ProductRestTemplateClient {
                 //Create
                 events.put( CreateAction,productEvent -> {
                     log.info("Created product: {}", productEvent.getPrimaryId());
-                    Product product = Product.builder().productId(productEvent.getPrimaryId()).expiration(120L).build();
+                    Product product = Product.builder().productId(productEvent.getPrimaryId()).expiration(1200L).build();
                     cacheProductObject(product);
                 });
             }

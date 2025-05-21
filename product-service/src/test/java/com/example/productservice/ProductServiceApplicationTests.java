@@ -3,32 +3,23 @@ package com.example.productservice;
 import com.example.productservice.DTO.ProductDTO;
 import com.example.productservice.model.Product;
 import com.example.productservice.repository.ProductRepository;
-import com.example.productservice.service.ProductFuzzySearch;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.kafka.dsl.Kafka;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
 
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT )
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes ={ProductServiceApplication.class,TestContainersConfig.class} )
 class ProductServiceApplicationTests {
 
-	@Container
-	@ServiceConnection
-	static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:16.0");
 
 	@Autowired
 	private TestRestTemplate restTemplate;
