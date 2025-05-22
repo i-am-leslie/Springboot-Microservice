@@ -20,9 +20,6 @@ import org.springframework.data.redis.core.RedisHash;
 @RedisHash("Product")
 public class Product {
 
-
-
-
     @Id
     String productId;
     @TimeToLive
