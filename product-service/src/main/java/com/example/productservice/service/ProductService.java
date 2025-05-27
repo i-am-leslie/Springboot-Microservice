@@ -26,6 +26,10 @@ import org.springframework.cloud.stream.function.StreamBridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class is responsible for business logic to create, delete and update products
+ */
+
 @Service
 @Slf4j
 

@@ -3,6 +3,7 @@ package com.example.orderservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class Orders {
     @Column(nullable = false)
     private OrderStatus orderStatus;
 
+//    private LocalDate orderDate;
 
 
 }

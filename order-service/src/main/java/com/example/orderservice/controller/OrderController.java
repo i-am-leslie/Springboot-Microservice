@@ -19,8 +19,13 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping(value="api/v1/Orders")
 @Slf4j
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
+
+    private final OrderService orderService;
+
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @PostMapping(value = "/create/{productId}")
     public ResponseEntity<String> saveOrder(@PathVariable("productId") String productId) throws TimeoutException {

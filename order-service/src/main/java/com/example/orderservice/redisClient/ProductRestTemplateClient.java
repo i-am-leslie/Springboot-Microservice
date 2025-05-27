@@ -31,8 +31,8 @@ public class ProductRestTemplateClient {
 
     private  HashMap<String, EventAction> events;
 
-    private static final String CreateAction="CREATED";
-    private static final String DeleteAction="DELETED";
+    private static final String CREATEACTION="CREATED";
+    private static final String DELETEACTION="DELETED";
 
 
     public  ProductRestTemplateClient(OrderRedisRepository orderRedisRepository,FeignClient feignClient) {
@@ -136,13 +136,13 @@ public class ProductRestTemplateClient {
             if (events == null) {
                 events = new HashMap<>();
                 //Deleted
-                events.put(DeleteAction, productEvent -> {
+                events.put(CREATEACTION, productEvent -> {
                     orderRedisRepository.deleteById(productEvent.getPrimaryId());
                     log.info("Deleted product: {} ", productEvent.getPrimaryId());
                 });
 
                 //Create
-                events.put( CreateAction,productEvent -> {
+                events.put( DELETEACTION,productEvent -> {
                     log.info("Created product: {}", productEvent.getPrimaryId());
                     Product product = Product.builder().productId(productEvent.getPrimaryId()).expiration(1200L).build();
                     cacheProductObject(product);

@@ -31,7 +31,7 @@ class ProductServiceApplicationTests {
 	void setUp() {
 		// Add product to database before test
 		productRepository.saveAll(List.of(new Product("12345", "Fan", "Sample product", "10", 10),
-					new Product("1235", "Controller", "Sample product", "10", 10)));
+					new Product("1235", "2", "Sample product", "10", 10)));
 	}
 
 	@Test

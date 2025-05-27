@@ -30,7 +30,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    FeignClient feignClient;
+    private final FeignClient feignClient;
 
 
     private final ProductRestTemplateClient redisCache; // for caching products to reduce queries for database
