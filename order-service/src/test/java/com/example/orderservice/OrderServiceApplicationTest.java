@@ -6,33 +6,25 @@ import com.example.orderservice.feign.FeignClient;
 import com.example.orderservice.model.OrderStatus;
 import com.example.orderservice.model.Orders;
 import com.example.orderservice.model.Product;
-import com.example.orderservice.redisClient.ProductRestTemplateClient;
 import com.example.orderservice.repository.OrderRedisRepository;
 import com.example.orderservice.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 @TestConfiguration(proxyBeanMethods = false)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,classes = {OrderServiceApplication.class, TestContainersConfig.class} )
-@Import(TestContainersConfig.class)
 class OrderServiceApplicationTest {
 
 
@@ -74,10 +66,20 @@ class OrderServiceApplicationTest {
                 .postForEntity("/api/v1/Orders/create/{productId}", null, String.class, productId);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).matches("New order created|Order creation failed");
-
+        assertThat(response.getBody()).matches("New order created");
     }
 
+    @Test
+    void saveOrderFailed() {
+        String productId = "2";
+
+        ResponseEntity<String> response = restTemplate
+                .postForEntity("/api/v1/Orders/create/{productId}", null, String.class, productId);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).matches("Order creation failed");
+    }
+//
 //    @Test
 //    void getAllOrder() {
 //        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/Orders/all?page=0&size=10", String.class);

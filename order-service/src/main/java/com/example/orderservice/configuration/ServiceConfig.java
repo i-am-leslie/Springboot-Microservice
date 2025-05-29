@@ -1,4 +1,4 @@
-package com.example.orderservice.Configuration;
+package com.example.orderservice.configuration;
 
 
 
