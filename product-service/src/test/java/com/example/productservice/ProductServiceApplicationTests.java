@@ -1,6 +1,7 @@
 package com.example.productservice;
 
 import com.example.productservice.DTO.ProductDTO;
+import com.example.productservice.DTO.ProductRequestDTO;
 import com.example.productservice.model.Product;
 import com.example.productservice.repository.ProductRepository;
 import org.junit.jupiter.api.Assertions;
@@ -9,8 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 
 import java.util.List;
@@ -27,11 +30,18 @@ class ProductServiceApplicationTests {
 	@Autowired
 	private ProductRepository productRepository;
 
+//	@MockitoBean
+//	private StreamBridge streamBridge;
+
+	private final ProductRequestDTO productRequestDTO= new ProductRequestDTO("Shoe", "Test", "10", 10);
+
 	@BeforeEach
 	void setUp() {
 		// Add product to database before test
 		productRepository.saveAll(List.of(new Product("12345", "Fan", "Sample product", "10", 10),
 					new Product("1235", "2", "Sample product", "10", 10)));
+
+
 	}
 
 	@Test
@@ -67,9 +77,17 @@ class ProductServiceApplicationTests {
 		assertThat(response.getBody()[0].name()).isEqualTo("Fan");
 	}
 
-	@Test
-	void testCreateProduct() {
-
-	}
+//	@Test
+//	void testCreateProduct() {
+//		ResponseEntity<String> response = restTemplate.postForEntity("/api/v1/products/create",productRequestDTO, String.class);
+//		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+//		assertThat(response.getBody()).isNotNull();
+//		assertThat(response.getBody()).isEqualTo("Product created");
+//	when(streamBridge.send())
+//	}
+//	@Test
+//	void testDeleteProduct() {
+//
+//	}
 
 }
